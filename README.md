@@ -1,3 +1,9 @@
+To open the slc7 singularity:
+
+export SINGULARITY_BIND=/local/
+
+cmssw-cc7
+
 To initialize:
 
 cmsrel CMSSW_10_6_20

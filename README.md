@@ -9,3 +9,12 @@ mkdir DarkPhoton
 cd DarkPhoton/
 
 git clone (this repository)
+
+
+To compile:
+
+cmsenv
+scram b
+
+To run:
+submitScripts/submitDYMC.sh

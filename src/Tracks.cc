@@ -31,7 +31,6 @@ int Tracks::SelectTracks(const edm::Event& iEvent,
     if (cutProgress == 0) {
       cutProgress = 1;
     }
-    selectedTracks.push_back(&(*iTrack));
     if (fabs(iTrack->eta()) > 2.4)
       continue;
     if (cutProgress == 1) {
@@ -77,6 +76,7 @@ int Tracks::SelectTracks(const edm::Event& iEvent,
     if (cutProgress == 5) {
       cutProgress = 6;
     }
+    selectedTracks.push_back(&(*iTrack));
     trackSelected = true;
     if (iTrack->pt() > highendcaptrackpt) {
       highptendcaptrack = &(*iTrack);

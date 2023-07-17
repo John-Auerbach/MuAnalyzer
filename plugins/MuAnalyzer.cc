@@ -86,6 +86,7 @@
 #include "DarkPhoton/MuAnalyzer/interface/Muons.h"
 #include "DarkPhoton/MuAnalyzer/interface/Tracks.h"
 #include "DarkPhoton/MuAnalyzer/interface/ECAL.h"
+#include "DarkPhoton/MuAnalyzer/interface/HCAL.h"
 
 // class declaration
 //

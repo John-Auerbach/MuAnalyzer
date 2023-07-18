@@ -40,8 +40,8 @@ if(options.runLocally):
 	process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 	import FWCore.Utilities.FileUtils as FileUtils
 	if(options.isMC):
-	   mylist = FileUtils.loadListFromFile ('datafiles/DYJets_mumuFilter_combined.txt')
-        else:
+	    mylist = FileUtils.loadListFromFile ('datafiles/DYJets_run3.txt')#DYJets_mumuFilter_combined.txt
+	else:
 	   mylist = FileUtils.loadListFromFile('datafiles/Filtered_Files_Doublemuon.txt')
 	readFiles = cms.untracked.vstring( *mylist)
 

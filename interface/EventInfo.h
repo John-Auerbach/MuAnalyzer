@@ -90,5 +90,6 @@ public:
   int hitsOverThresh;
   int coneHits;
   double coneEnergy;
+  int expectedHits;
 };
 #endif

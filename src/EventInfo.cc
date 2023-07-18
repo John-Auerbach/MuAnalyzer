@@ -40,6 +40,7 @@ EventInfo::EventInfo() {
   staLongDCA = -1;
   nPUmean = -1.;
   pileupWeight = -1.;
+  expectedHits = 0;
 }
 
 bool EventInfo::passTriggers(const edm::Event& iEvent, 

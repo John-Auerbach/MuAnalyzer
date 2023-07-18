@@ -32,6 +32,7 @@ public:
 
 public:
   bool isMC;
+  TH1F* m_missingHits;
   //Histograms
   TH1F* m_eventCount;
   TH1F* m_eventWeight;

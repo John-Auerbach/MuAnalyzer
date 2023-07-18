@@ -167,6 +167,7 @@ private:
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   Histograms pairedEvents;
+  Histograms severalMissing;
   Histograms genMatched;
 };
 
@@ -519,6 +520,18 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   pairedEvents.FillHists(info);
   if(info.minGenMuDr<0.05){genMatched.FillHists(info);}
 
+  int nFoundHits = 0;
+  for (int depth = 0; depth < 7; depth++) {
+    if (!info.foundDepths[depth]) {
+      continue;
+    }
+    if (info.hitEnergies[depth] > 0.1) {
+      nFoundHits++;
+    }
+  }
+  if (info.expectedHits - nFoundHits > 2) {
+    severalMissing.FillHists(info);
+  }
 }
 
 int MuAnalyzer::PairTagAndProbe(

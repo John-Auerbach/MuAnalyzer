@@ -167,7 +167,11 @@ private:
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   Histograms pairedEvents;
+  Histograms pairedEvents_CSC;
+  Histograms pairedEvents_Barrel;
   Histograms severalMissing;
+  Histograms severalMissing_CSC;
+  Histograms severalMissing_Barrel;
   Histograms genMatched;
 };
 
@@ -517,8 +521,11 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.caloJetHcalE = nearProbeCaloJetHadE;
   info.caloJetEcalE = nearProbeCaloJetEmE;
   info.caloJetTotalE = nearProbeCaloJetHadE + nearProbeCaloJetEmE;
-  pairedEvents.FillHists(info);
   if(info.minGenMuDr<0.05){genMatched.FillHists(info);}
+
+  pairedEvents.FillHists(info);  
+  if(std::abs(info.probeTrackEta)<1.6){pairedEvents_Barrel.FillHists(info);}
+  else{pairedEvents_CSC.FillHists(info);}
 
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
@@ -531,6 +538,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
+    if(std::abs(info.probeTrackEta)<1.6){severalMissing_Barrel.FillHists(info);}
+    else{severalMissing_CSC.FillHists(info);}
   }
 }
 

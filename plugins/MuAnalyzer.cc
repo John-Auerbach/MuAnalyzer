@@ -137,7 +137,8 @@ private:
   edm::EDGetToken m_genParticleToken;
   edm::EDGetToken m_trigResultsToken;
   edm::EDGetToken m_trigEventToken;
-  edm::EDGetTokenT<GenEventInfoProduct> m_genInfoToken;
+  edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label;
+  edm::EDGetTokenT<GenEventInfoProduct> m_genInfoToken; 
   std::vector<std::string> m_muonPathsToPass;
   const reco::Track* selectedTrack;
   const reco::Muon* selectedMuon;
@@ -203,6 +204,8 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     }
   m_trigResultsToken = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trigResults"));
   m_trigEventToken = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"));
+  HBHERecHit_Label = consumes<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>(
+      iConfig.getParameter<edm::InputTag>("HBHERecHits")),
   m_muonPathsToPass = iConfig.getParameter<std::vector<std::string>>("muonPathsToPass");
   if(m_isMC){
     TFile* puFile = TFile::Open(
@@ -257,6 +260,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   EventInfo myEventInfo;
   Tracks myTracks;
   ECAL myECAL;
+  HCAL myHCAL;
   EventInfo info;
   if(!info.passTriggers(iEvent,m_trigResultsToken,m_trigEventToken,m_muonPathsToPass)) return;
   pairedEvents.ResetCutFlow();
@@ -458,6 +462,28 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     info.standaloneDEoverE = stadEoverE;
   }
   info.staMinDr = staMinDr;
+  GlobalPoint TrackGlobalPoint =
+      GlobalPoint(GlobalPoint::Polar(selectedTrack->theta(), selectedTrack->phi(), 525));
+  bool m_studyBarrel = true;
+  if (!myHCAL.FindMuonHits(iEvent,
+                           iSetup,
+                           HBHERecHit_Label,
+                           TrackGlobalPoint,
+                           selectedTrack->charge(),
+                           transientTrackBuilder->build(selectedTrack))&&!m_studyBarrel) {
+    return;
+  }
+  info.nCellsFound = myHCAL.CellsFound;
+  info.nNeighborCellsFound = myHCAL.NeighborCellsFound;
+  for (int depth = 0; depth < 7; depth++) {
+    info.foundDepths[depth] = myHCAL.foundDepths[depth];
+  }
+  info.iEta = myHCAL.TrackiEta;
+  info.cellCenterDEta = myHCAL.etaEdgeMin;
+  info.cellCenterDPhi = myHCAL.phiEdgeMin;
+  if (info.nCellsFound < 4&&!m_studyBarrel) {
+    return;
+  }
   //Check fail HCAL location here (or probably a bit earlier actually)
   pairedEvents.IncCutFlow(info.eventWeight);
   //Calo Jet Stuff
@@ -478,6 +504,14 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
   }
+  for (int k = 0; k < 7; k++) {
+    info.hitEnergies[k] = myHCAL.m_hitEnergies[k];
+    info.neighborHitEnergies[k] = myHCAL.m_neighborHitEnergies[k];
+  }
+  info.bremDepth = myHCAL.m_bremDepth;
+  info.hitsOverThresh = myHCAL.m_HitsOverThresh;
+  info.coneHits = myHCAL.m_coneHits;
+  info.coneEnergy = myHCAL.m_coneEnergy;
   info.minCaloJetDr = minProbeDr;
   info.caloJetHcalE = nearProbeCaloJetHadE;
   info.caloJetEcalE = nearProbeCaloJetEmE;

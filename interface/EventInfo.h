@@ -77,5 +77,18 @@ public:
   int nPUmean;
   //Trigger objects
   std::vector<trigger::TriggerObject> passingMuons;
+  //HCAL
+  int nCellsFound;
+  int nNeighborCellsFound;
+  bool foundDepths[7];
+  int iEta;
+  double cellCenterDEta;
+  double cellCenterDPhi;
+  double hitEnergies[7];
+  double neighborHitEnergies[7];
+  int bremDepth;
+  int hitsOverThresh;
+  int coneHits;
+  double coneEnergy;
 };
 #endif

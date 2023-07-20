@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -17,6 +18,7 @@ public:
                       const edm::EventSetup&,
                       edm::EDGetTokenT<EcalRecHitCollection>,
                       edm::EDGetTokenT<EcalRecHitCollection>,
+                      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
                       const reco::TransientTrack,
                       double dR = 0.4);
   std::vector<std::pair<double, double>> badCellPositions;

@@ -8,6 +8,7 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -24,37 +25,44 @@ public:
   void CheckHCAL(
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
-      edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label);
+      edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label, edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken);
   std::pair<double, int> EnergyInCone(
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
       GlobalPoint track);
   double MuonMindR(
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
       GlobalPoint MuonGlobalPoint);
   bool HitsPlots(
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
+      edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_,
       GlobalPoint TrackGlobalPoint,
       GlobalPoint RandGlobalPoint,
       bool GoodRand,
       Histograms myHistograms,
       reco::TransientTrack track);
-  void SetCenterCellDistance(const edm::EventSetup& iSetup, GlobalPoint TrackGlobalPoint);
+  void SetCenterCellDistance(const edm::EventSetup& iSetup, edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken, GlobalPoint TrackGlobalPoint);
   bool FindMuonHits(
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
+      edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_,
       GlobalPoint TrackGlobalPoint,
       double charge,
       reco::TransientTrack track);
   double GetIsolation(const edm::Event&,
                       const edm::EventSetup&,
                       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>,
+                      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
                       const reco::TransientTrack,
 		      double coneSize=0.2);
   double MuonHitEnergy;

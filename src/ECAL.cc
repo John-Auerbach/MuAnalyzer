@@ -34,6 +34,7 @@ double ECAL::GetIsolation(const edm::Event& iEvent,
                           const edm::EventSetup& iSetup,
                           edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollection_Label,
                           edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollection_Label,
+                          edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
                           const reco::TransientTrack track,
                           double dR) {
   TrajectoryStateClosestToPoint t0 = track.impactPointTSCP();
@@ -46,10 +47,8 @@ double ECAL::GetIsolation(const edm::Event& iEvent,
   iEvent.getByToken(reducedEndcapRecHitCollection_Label, rechitsEE);
   edm::Handle<EcalRecHitCollection> rechitsEB;
   iEvent.getByToken(reducedBarrelRecHitCollection_Label, rechitsEB);
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
 
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
   double eDR = 0;
   for (EcalRecHitCollection::const_iterator hit = rechitsEE->begin(); hit != rechitsEE->end(); hit++) {
     const DetId id = (*hit).detid();

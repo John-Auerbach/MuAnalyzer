@@ -147,6 +147,9 @@ private:
   edm::EDGetToken m_caloJet_label;
   edm::EDGetToken m_PUInfoToken;
   edm::EDGetToken m_theSTAMuonLabel;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
   bool m_isMC;
   bool pairedTagAndProbe_;
   double weight_;
@@ -175,7 +178,6 @@ private:
   Histograms genMatched;
 };
 
-//
 // constants, enums and typedefs
 //
 
@@ -197,8 +199,12 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHits"))),
       m_caloJet_label(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("CaloJetSource"))),
       m_theSTAMuonLabel(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("StandAloneTracks"))),
+      transientTrackToken_(esConsumes(edm::ESInputTag("","TransientTrackBuilder"))),
+      geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})),
+      topoToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
       m_isMC(iConfig.getUntrackedParameter<bool>("isMC", true))
   {
+  std::cout << "def\n"; //------------------------------------------------------------------------
   usesResource("TFileService");
   edm::Service<TFileService> fs;
   //now do what ever initialization is needed
@@ -243,8 +249,16 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     puWeightDownHist_ = (TH1F*)fPUDataDownHist_->Clone();
   }
   pairedEvents.book(fs->mkdir("pairedEvents"),m_isMC);
+  pairedEvents_Barrel.book(fs->mkdir("pairedEvents_Barrel"),m_isMC);
+  pairedEvents_CSC.book(fs->mkdir("pairedEvents_CSC"),m_isMC);
+  severalMissing.book(fs->mkdir("severalMissing"),m_isMC);
+  severalMissing_Barrel.book(fs->mkdir("severalMissing_Barrel"),m_isMC);
+  severalMissing_CSC.book(fs->mkdir("severalMissing_CSC"),m_isMC);
   genMatched.book(fs->mkdir("genMatched"),m_isMC);
+  std::cout << "constr\n"; //------------------------------------------------------------------------
+
 }
+
 
 MuAnalyzer::~MuAnalyzer() {
   // do anything here that needs to be done at destruction time
@@ -257,6 +271,7 @@ MuAnalyzer::~MuAnalyzer() {
 
 // ------------ method called for each event  ------------
 void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::cout << "start analyze\n"; //----------------------------------------------------------------------- 
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -283,10 +298,11 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
  
   //Do pileup reweighting if necessary 
   if (m_isMC) {
-    edm::Handle<std::vector<PileupSummaryInfo>> hPileupInfoProduct;
-    iEvent.getByToken(m_PUInfoToken, hPileupInfoProduct);
-    assert(hPileupInfoProduct.isValid());
-    std::vector<double> PUWeight = GetPuWeight(hPileupInfoProduct);
+    //edm::Handle<std::vector<PileupSummaryInfo>> hPileupInfoProduct;
+    //iEvent.getByToken(m_PUInfoToken, hPileupInfoProduct);
+    //assert(hPileupInfoProduct.isValid());
+    //std::vector<double> PUWeight = GetPuWeight(hPileupInfoProduct);
+    std::vector<double> PUWeight {1, 1, 1};
     weight_ = weight_ * PUWeight[0];
     info.PuUpDownWeights.push_back(PUWeight[1]);
     info.PuUpDownWeights.push_back(PUWeight[2]);
@@ -298,10 +314,6 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByToken(m_theSTAMuonLabel, staTracks);
   edm::Handle<reco::VertexCollection> vtxHandle;
   iEvent.getByToken(primaryVertices_Label, vtxHandle);
-  edm::ESHandle<MagneticField> theMGField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
  
   //Check reco muons in event, skip if no good tag muons are found.
   int muProgress = myMuons.SelectMuons(iEvent, m_recoMuonToken);
@@ -314,8 +326,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   int maxTrackProgress = -1;
   pairedTagAndProbe_=false;
   iEvent.getByToken(m_caloJet_label, caloJets);
-  edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder);
+  const TransientTrackBuilder* transientTrackBuilder = &iSetup.getData(transientTrackToken_);
   for (std::vector<const reco::Muon*>::const_iterator muon = myMuons.selectedMuons.begin();
        muon != myMuons.selectedMuons.end();
        muon++) {
@@ -369,7 +380,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     return;
   }
   //Make sure the tag muon would have fired the trigger
-  if(!info.matchTagAndTrigger(selectedMuon)){return;}
+  //if(!info.matchTagAndTrigger(selectedMuon)){return;}
   pairedEvents.IncCutFlow(info.eventWeight);
   //Reject events where another probe also could pair with the selected tag
   for (std::vector<const reco::Track*>::const_iterator iTrack = myTracks.selectedTracks.begin();
@@ -385,6 +396,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                                 iSetup,
                                                 reducedEndcapRecHitCollection_Label,
                                                 reducedBarrelRecHitCollection_Label,
+                                                geometryToken_,
                                                 transientTrackBuilder->build(*iTrack));
       if ((probeTrackIso / (*iTrack)->pt()) > 0.2 || probeEcalIso > 30.)
         continue;
@@ -406,6 +418,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                           iSetup,
                                           reducedEndcapRecHitCollection_Label,
                                           reducedBarrelRecHitCollection_Label,
+                                          geometryToken_,
                                           transientTrackBuilder->build(selectedTrack));
   info.tagMuonPt = selectedMuon->pt();
   info.probeTrackEta = selectedTrack->eta();
@@ -473,6 +486,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!myHCAL.FindMuonHits(iEvent,
                            iSetup,
                            HBHERecHit_Label,
+                           geometryToken_,
+                           topoToken_,
                            TrackGlobalPoint,
                            selectedTrack->charge(),
                            transientTrackBuilder->build(selectedTrack))&&!m_studyBarrel) {
@@ -521,12 +536,15 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.caloJetHcalE = nearProbeCaloJetHadE;
   info.caloJetEcalE = nearProbeCaloJetEmE;
   info.caloJetTotalE = nearProbeCaloJetHadE + nearProbeCaloJetEmE;
+  std::cout << "1\n"; //------------------------------------------------------------------------
   if(info.minGenMuDr<0.05){genMatched.FillHists(info);}
 
   pairedEvents.FillHists(info);  
+  std::cout << "2\n"; //------------------------------------------------------------------------
+
   if(std::abs(info.probeTrackEta)<1.6){pairedEvents_Barrel.FillHists(info);}
   else{pairedEvents_CSC.FillHists(info);}
-
+  std::cout << "3\n"; //------------------------------------------------------------------------
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
     if (!info.foundDepths[depth]) {
@@ -538,10 +556,15 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
+    std::cout << "4\n"; //------------------------------------------------------------------------
+
     if(std::abs(info.probeTrackEta)<1.6){severalMissing_Barrel.FillHists(info);}
     else{severalMissing_CSC.FillHists(info);}
+    std::cout << "5\n"; //------------------------------------------------------------------------
   }
+  std::cout << "analyze\n"; //------------------------------------------------------------------------
 }
+
 
 int MuAnalyzer::PairTagAndProbe(
     const edm::Event& iEvent,
@@ -573,6 +596,7 @@ int MuAnalyzer::PairTagAndProbe(
                                                 iSetup,
                                                 reducedEndcapRecHitCollection_Label,
                                                 reducedBarrelRecHitCollection_Label,
+                                                geometryToken_,
                                                 transientTrackBuilder->build(*iTrack));
       double minProbeDr = 5;
       for (auto CaloJet = caloJets->begin(); CaloJet != caloJets->end(); ++CaloJet) {
@@ -607,8 +631,11 @@ int MuAnalyzer::PairTagAndProbe(
       probeLIP = traj.perigeeParameters().longitudinalImpactParameter();
     }
   }
+  std::cout << "pairprobetag\n"; //------------------------------------------------------------------------
+
   return cutpro;
 }
+
 
 double MuAnalyzer::MatchTrackToGenMuon(const edm::Event& iEvent,
                                       const reco::Track* selTrack,
@@ -622,8 +649,10 @@ double MuAnalyzer::MatchTrackToGenMuon(const edm::Event& iEvent,
       double dR = deltaR(particle.eta(), particle.phi(), selTrack->eta(), selTrack->phi());
       if(dR<minDR||minDR<0){minDR=dR;}
    }
+   std::cout << "matchtrackgen\n"; //------------------------------------------------------------------------
    return minDR;
 }
+
 
 bool MuAnalyzer::MatchTrackToMuon(const edm::Event& iEvent,
                                    math::XYZTLorentzVectorD mother,
@@ -663,8 +692,10 @@ bool MuAnalyzer::MatchTrackToMuon(const edm::Event& iEvent,
   } else {
     standaloneE = 0;
   }
+  std::cout << "matchtrack\n"; //------------------------------------------------------------------------
   return matched;
 }
+
 
 std::vector<double> MuAnalyzer::GetPuWeight(edm::Handle<std::vector<PileupSummaryInfo>> hPileupInfoProduct) {
   const std::vector<PileupSummaryInfo>* inPUInfos = hPileupInfoProduct.product();
@@ -700,8 +731,10 @@ std::vector<double> MuAnalyzer::GetPuWeight(edm::Handle<std::vector<PileupSummar
   puWeights.push_back(lNPVW);
   puWeights.push_back(puUpWeight);
   puWeights.push_back(puDownWeight);
+  std::cout << "getPU\n"; //------------------------------------------------------------------------
   return puWeights;
 }
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void MuAnalyzer::beginJob() {}

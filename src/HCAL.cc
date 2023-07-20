@@ -45,15 +45,14 @@ HCAL::HCAL() {
 void HCAL::CheckHCAL(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
-    edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label) {
+    edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken) {
   std::cout << "Inside CheckHCAL" << std::endl;
 
   edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hcalRecHits;
   iEvent.getByToken(HBHERecHit_Label, hcalRecHits);
 
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
 
   if (!hcalRecHits.isValid()) {
     //    std::cout << "Could not find HCAL RecHits" << std::endl;
@@ -81,13 +80,12 @@ std::pair<double, int> HCAL::EnergyInCone(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
     GlobalPoint track) {
   edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hcalRecHits;
   iEvent.getByToken(HBHERecHit_Label, hcalRecHits);
 
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
   double energyInCone = 0;
   int nhits = 0;
 
@@ -114,6 +112,7 @@ double HCAL::MuonMindR(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
     GlobalPoint MuonGlobalPoint) {
   double MuonEta = MuonGlobalPoint.eta();
   double MuonPhi = MuonGlobalPoint.phi();
@@ -123,9 +122,7 @@ double HCAL::MuonMindR(
   edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hcalRecHits;
   iEvent.getByToken(HBHERecHit_Label, hcalRecHits);
 
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
 
   if (!hcalRecHits.isValid()) {
     std::cout << "Could not find HCAL RecHits" << std::endl;
@@ -315,6 +312,8 @@ bool HCAL::HitsPlots(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_,
     GlobalPoint TrackGlobalPoint,
     GlobalPoint RandGlobalPoint,
     bool GoodRand,
@@ -328,14 +327,9 @@ bool HCAL::HitsPlots(
   Hits[2] = 0;
   Hits[3] = 0;
 
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
+  const HcalTopology* theHBHETopology = &iSetup.getData(topoToken_);
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
   const CaloSubdetectorGeometry* HEGeom = caloGeom->getSubdetectorGeometry(DetId::Hcal, 2);
   int TrackiPhi;
   HcalDetId ClosestCell = (HcalDetId)HEGeom->getClosestCell(TrackGlobalPoint);
@@ -481,13 +475,8 @@ bool HCAL::HitsPlots(
   return true;
 }
 
-void HCAL::SetCenterCellDistance(const edm::EventSetup& iSetup, GlobalPoint TrackGlobalPoint) {
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
+void HCAL::SetCenterCellDistance(const edm::EventSetup& iSetup, edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken, GlobalPoint TrackGlobalPoint) {
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
   const CaloSubdetectorGeometry* HEGeom = caloGeom->getSubdetectorGeometry(DetId::Hcal, 2);
   HcalDetId ClosestCell = (HcalDetId)HEGeom->getClosestCell(TrackGlobalPoint);
   TrackiEta = ClosestCell.ieta();
@@ -506,6 +495,8 @@ bool HCAL::FindMuonHits(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_,
     GlobalPoint TrackGlobalPoint,
     double charge,
     reco::TransientTrack track) {
@@ -518,14 +509,9 @@ bool HCAL::FindMuonHits(
   Hits[2] = 0;
   Hits[3] = 0;
   m_HitsOverThresh = 0;
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
+  const HcalTopology* theHBHETopology = &iSetup.getData(topoToken_);
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
   const CaloSubdetectorGeometry* HEGeom = caloGeom->getSubdetectorGeometry(DetId::Hcal, 2);
   HcalDetId ClosestCell = (HcalDetId)HEGeom->getClosestCell(TrackGlobalPoint);
   TrackiEta = ClosestCell.ieta();
@@ -728,16 +714,13 @@ double HCAL::GetIsolation(
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
     const reco::TransientTrack track,
     double coneSize) {
   edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hcalRecHits;
   iEvent.getByToken(HBHERecHit_Label, hcalRecHits);
   double MatchedEnergy = 0;
-
-  edm::ESHandle<CaloGeometry> TheCALOGeometry;
-  iSetup.get<CaloGeometryRecord>().get(TheCALOGeometry);
-
-  const CaloGeometry* caloGeom = TheCALOGeometry.product();
+  const CaloGeometry* caloGeom = &iSetup.getData(geometryToken);
   if (!hcalRecHits.isValid())
     return 1000;
   const HBHERecHitCollection* hbhe = hcalRecHits.product();

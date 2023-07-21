@@ -9,6 +9,13 @@ options.register( 'isMC',
 				  VarParsing.varType.bool,
 				  "True if is MC dataset")
 
+options.register( 'isSig',
+                                  False,
+                                  VarParsing.multiplicity.singleton,
+                                  VarParsing.varType.bool,
+                                  "True if is signal dataset")
+
+
 options.register( 'runLocally',
                                   False,
                                   VarParsing.multiplicity.singleton,
@@ -69,7 +76,9 @@ process.demo = cms.EDAnalyzer('MuAnalyzer',
     StandAloneTracks = cms.InputTag("standAloneMuons"),
     EERecHits = cms.InputTag("reducedEcalRecHitsEE"),
     EBRecHits = cms.InputTag("reducedEcalRecHitsEB"),
+    dbremweighttag = cms.InputTag("g4SimHits","DBremEventWeight"),
     isMC = cms.untracked.bool(options.isMC),
+    isSig = cms.untracked.bool(options.isSig),
 )
 
 process.TFileService = cms.Service("TFileService",

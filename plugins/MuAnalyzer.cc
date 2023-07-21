@@ -131,6 +131,7 @@ private:
       edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollection_Label);
   std::vector<double> GetPuWeight(edm::Handle<std::vector<PileupSummaryInfo>> hPileupInfoProduct);
 
+  edm::EDGetToken m_dbremweighttoken;
   edm::EDGetToken m_recoMuonToken;
   edm::EDGetTokenT<std::vector<reco::Track>> trackCollection_label;
   edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertices_Label;
@@ -189,7 +190,8 @@ private:
 // constructors and destructor
 //
 MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
-    : m_recoMuonToken(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
+    : m_dbremweighttoken = consumes<float>(iConfig.getParameter<edm::InputTag>("dbremweighttag"));
+      m_recoMuonToken(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
       trackCollection_label(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       primaryVertices_Label(
           consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
@@ -295,7 +297,16 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     weight_ = 1.;
     pairedEvents.IncCutFlow(weight_);
   }
- 
+  if(m_isSig)
+  {
+        edm::Handle<float> dbremweight;
+        iEvent.getByToken(m_dbremweighttoken, dbremweight);
+        if (*dbremweight>0) { //A dark brem occurred
+          //Do things
+        }
+        else{return;}
+  }
+
   //Do pileup reweighting if necessary 
   if (m_isMC) {
     //edm::Handle<std::vector<PileupSummaryInfo>> hPileupInfoProduct;

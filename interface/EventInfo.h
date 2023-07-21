@@ -91,5 +91,7 @@ public:
   int coneHits;
   double coneEnergy;
   int expectedHits;
+  double HOMuonHitEnergy;
+  double HOMuonHitDr;
 };
 #endif

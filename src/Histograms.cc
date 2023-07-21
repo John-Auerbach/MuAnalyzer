@@ -28,6 +28,8 @@ Histograms::Histograms() {
 
 void Histograms::book(TFileDirectory histFolder, bool MC) {
   isMC=MC;
+  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,100);
+  m_HOMuonHitDr = histFolder.make<TH1F>("HOMuonHitDr", "; ;Events",100,0,10);
   m_missingHits = histFolder.make<TH1F>("missingCount", "; ;Events",8,-0.5,7.5);
   m_eventCount = histFolder.make<TH1F>("eventCount", "; ;Events", 1, 0, 1);
   m_eventCount_PUup = histFolder.make<TH1F>("eventCount_PUup", "; ;Events", 1, 0, 1);
@@ -134,6 +136,9 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
 }
 
 void Histograms::FillHists(EventInfo info) {
+
+  m_HOMuonHitEnergy->Fill(info.HOMuonHitEnergy);
+  m_HOMuonHitDr->Fill(info.HOMuonHitDr);
 
   int missingHits = 0;
   for  (int depth = 0; depth < 7; depth++) {

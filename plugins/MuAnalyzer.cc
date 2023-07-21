@@ -148,10 +148,12 @@ private:
   edm::EDGetToken m_caloJet_label;
   edm::EDGetToken m_PUInfoToken;
   edm::EDGetToken m_theSTAMuonLabel;
+  edm::EDGetTokenT<HORecHitCollection> horecoToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
   bool m_isMC;
+  bool m_isSig;
   bool pairedTagAndProbe_;
   double weight_;
   double nPUmean_;
@@ -190,7 +192,7 @@ private:
 // constructors and destructor
 //
 MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
-    : m_dbremweighttoken = consumes<float>(iConfig.getParameter<edm::InputTag>("dbremweighttag"));
+    : m_dbremweighttoken(consumes<float>(iConfig.getParameter<edm::InputTag>("dbremweighttag"))),
       m_recoMuonToken(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
       trackCollection_label(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       primaryVertices_Label(
@@ -201,10 +203,12 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHits"))),
       m_caloJet_label(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("CaloJetSource"))),
       m_theSTAMuonLabel(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("StandAloneTracks"))),
+      horecoToken_(consumes<HORecHitCollection>(edm::InputTag("horeco"))),
       transientTrackToken_(esConsumes(edm::ESInputTag("","TransientTrackBuilder"))),
       geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})),
       topoToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
-      m_isMC(iConfig.getUntrackedParameter<bool>("isMC", true))
+      m_isMC(iConfig.getUntrackedParameter<bool>("isMC", true)),
+      m_isSig(iConfig.getUntrackedParameter<bool>("isSig", true))
   {
   std::cout << "def\n"; //------------------------------------------------------------------------
   usesResource("TFileService");
@@ -497,6 +501,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!myHCAL.FindMuonHits(iEvent,
                            iSetup,
                            HBHERecHit_Label,
+                           horecoToken_,
                            geometryToken_,
                            topoToken_,
                            TrackGlobalPoint,
@@ -504,6 +509,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                            transientTrackBuilder->build(selectedTrack))&&!m_studyBarrel) {
     return;
   }
+  info.HOMuonHitEnergy = myHCAL.HOMuonHitEnergy;
+  info.HOMuonHitDr = myHCAL.HOMuonHitDr;
   info.nCellsFound = myHCAL.CellsFound;
   info.nNeighborCellsFound = myHCAL.NeighborCellsFound;
   for (int depth = 0; depth < 7; depth++) {

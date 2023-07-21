@@ -32,6 +32,8 @@ public:
 
 public:
   bool isMC;
+  TH1F* m_HOMuonHitEnergy;
+  TH1F* m_HOMuonHitDr;
   TH1F* m_missingHits;
   //Histograms
   TH1F* m_eventCount;

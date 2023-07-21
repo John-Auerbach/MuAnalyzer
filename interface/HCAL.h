@@ -54,6 +54,7 @@ public:
       const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label,
+      edm::EDGetTokenT<HORecHitCollection> horecoToken_,
       edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
       edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_,
       GlobalPoint TrackGlobalPoint,
@@ -65,6 +66,8 @@ public:
                       edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
                       const reco::TransientTrack,
 		      double coneSize=0.2);
+  double HOMuonHitEnergy;
+  double HOMuonHitDr;
   double MuonHitEnergy;
   int MuonHitDepth;
   double MuonMinDr;

@@ -210,7 +210,7 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
       m_isMC(iConfig.getUntrackedParameter<bool>("isMC", true)),
       m_isSig(iConfig.getUntrackedParameter<bool>("isSig", true))
   {
-  std::cout << "def\n"; //------------------------------------------------------------------------
+  //std::cout << "def\n"; //------------------------------------------------------------------------
   usesResource("TFileService");
   edm::Service<TFileService> fs;
   //now do what ever initialization is needed
@@ -261,7 +261,7 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
   severalMissing_Barrel.book(fs->mkdir("severalMissing_Barrel"),m_isMC);
   severalMissing_CSC.book(fs->mkdir("severalMissing_CSC"),m_isMC);
   genMatched.book(fs->mkdir("genMatched"),m_isMC);
-  std::cout << "constr\n"; //------------------------------------------------------------------------
+  //std::cout << "constr\n"; //------------------------------------------------------------------------
 
 }
 
@@ -277,7 +277,7 @@ MuAnalyzer::~MuAnalyzer() {
 
 // ------------ method called for each event  ------------
 void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "start analyze\n"; //----------------------------------------------------------------------- 
+  //std::cout << "start analyze\n"; //----------------------------------------------------------------------- 
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -554,15 +554,15 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.caloJetHcalE = nearProbeCaloJetHadE;
   info.caloJetEcalE = nearProbeCaloJetEmE;
   info.caloJetTotalE = nearProbeCaloJetHadE + nearProbeCaloJetEmE;
-  std::cout << "1\n"; //------------------------------------------------------------------------
+  //std::cout << "1\n"; //------------------------------------------------------------------------
   if(info.minGenMuDr<0.05){genMatched.FillHists(info);}
 
   pairedEvents.FillHists(info);  
-  std::cout << "2\n"; //------------------------------------------------------------------------
+  //std::cout << "2\n"; //------------------------------------------------------------------------
 
   if(std::abs(info.probeTrackEta)<1.6){pairedEvents_Barrel.FillHists(info);}
   else{pairedEvents_CSC.FillHists(info);}
-  std::cout << "3\n"; //------------------------------------------------------------------------
+ // std::cout << "3\n"; //------------------------------------------------------------------------
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
     if (!info.foundDepths[depth]) {
@@ -574,13 +574,13 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
-    std::cout << "4\n"; //------------------------------------------------------------------------
+    //std::cout << "4\n"; //------------------------------------------------------------------------
 
     if(std::abs(info.probeTrackEta)<1.6){severalMissing_Barrel.FillHists(info);}
     else{severalMissing_CSC.FillHists(info);}
-    std::cout << "5\n"; //------------------------------------------------------------------------
+    //std::cout << "5\n"; //------------------------------------------------------------------------
   }
-  std::cout << "analyze\n"; //------------------------------------------------------------------------
+  //std::cout << "analyze\n"; //------------------------------------------------------------------------
 }
 
 
@@ -649,7 +649,7 @@ int MuAnalyzer::PairTagAndProbe(
       probeLIP = traj.perigeeParameters().longitudinalImpactParameter();
     }
   }
-  std::cout << "pairprobetag\n"; //------------------------------------------------------------------------
+  //std::cout << "pairprobetag\n"; //------------------------------------------------------------------------
 
   return cutpro;
 }
@@ -667,7 +667,7 @@ double MuAnalyzer::MatchTrackToGenMuon(const edm::Event& iEvent,
       double dR = deltaR(particle.eta(), particle.phi(), selTrack->eta(), selTrack->phi());
       if(dR<minDR||minDR<0){minDR=dR;}
    }
-   std::cout << "matchtrackgen\n"; //------------------------------------------------------------------------
+   //std::cout << "matchtrackgen\n"; //------------------------------------------------------------------------
    return minDR;
 }
 
@@ -710,7 +710,7 @@ bool MuAnalyzer::MatchTrackToMuon(const edm::Event& iEvent,
   } else {
     standaloneE = 0;
   }
-  std::cout << "matchtrack\n"; //------------------------------------------------------------------------
+  //std::cout << "matchtrack\n"; //------------------------------------------------------------------------
   return matched;
 }
 
@@ -749,7 +749,7 @@ std::vector<double> MuAnalyzer::GetPuWeight(edm::Handle<std::vector<PileupSummar
   puWeights.push_back(lNPVW);
   puWeights.push_back(puUpWeight);
   puWeights.push_back(puDownWeight);
-  std::cout << "getPU\n"; //------------------------------------------------------------------------
+  //std::cout << "getPU\n"; //------------------------------------------------------------------------
   return puWeights;
 }
 

@@ -33,8 +33,8 @@ open(OUTP,">$executable");
 print OUTP "#!/bin/sh\n";
 print OUTP "source /local/grid/cmssoft/cms/cmsset_default.sh\n";
 print OUTP "pwd\n";
-print OUTP "export SINGULARITY_BIND=\"/local/,/export/scratch/,/home/\"\n";
-print OUTP "cmssw-cc7 --command-to-run ".$ENV{"HOME"}."/bin/batch_cmsRun \$@";
+print OUTP "export APPTAINER_BIND=\"/local/,/export/scratch/,/home/\"\n";
+print OUTP $ENV{"HOME"}."/bin/batch_cmsRun \$@";
 close(OUTP);
 chmod 0755,$executable;
 print "$#ARGV\n";
@@ -108,7 +108,7 @@ if ($nosubmit) {
 } else {
     open(SUBMIT,"|condor_submit");
 }
-print(SUBMIT "Executable = $executable\n");
+print(SUBMIT "Executable = ".$ENV{"HOME"}."/bin/batch_cmsRun\n");
 print(SUBMIT "Arguments = \"$cmsRunArguments\"\n");
 print(SUBMIT "Universe = vanilla\n");
 print(SUBMIT "initialdir = $prodSpace/$jobBase\n");

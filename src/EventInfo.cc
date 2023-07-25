@@ -41,6 +41,9 @@ EventInfo::EventInfo() {
   nPUmean = -1.;
   pileupWeight = -1.;
   expectedHits = 0;
+  for (int depth = 0; depth < 7; depth++) {
+    hitEnergies[depth] = -1;
+  }
 }
 
 bool EventInfo::passTriggers(const edm::Event& iEvent, 

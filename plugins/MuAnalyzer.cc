@@ -175,7 +175,7 @@ private:
   Histograms pairedEvents;
   Histograms pairedEvents_CSC;
   Histograms pairedEvents_Barrel;
-  Histograms nearbyHits[5];
+  Histograms missingHits[5];
   Histograms severalMissing;
   Histograms severalMissing_CSC;
   Histograms severalMissing_Barrel;
@@ -256,7 +256,7 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     puWeightDownHist_ = (TH1F*)fPUDataDownHist_->Clone();
   }
   for (int k = 0; k < 5; k++) {
-    nearbyHits[k].book(fs->mkdir((std::to_string(k)+"_nearbyHits").c_str()),m_isMC);
+    missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
   }
   pairedEvents.book(fs->mkdir("pairedEvents"),m_isMC);
   pairedEvents_Barrel.book(fs->mkdir("pairedEvents_Barrel"),m_isMC);
@@ -579,7 +579,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       nFoundHits++;
     }
   }
-  nearbyHits[nFoundHits].FillHists(info);
+  missingHits[info.expectedHits - nFoundHits].FillHists(info);
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
     //std::cout << "4\n"; //------------------------------------------------------------------------

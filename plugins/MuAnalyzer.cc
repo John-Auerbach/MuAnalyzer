@@ -175,6 +175,7 @@ private:
   Histograms pairedEvents;
   Histograms pairedEvents_CSC;
   Histograms pairedEvents_Barrel;
+  Histograms nearbyHits[5];
   Histograms severalMissing;
   Histograms severalMissing_CSC;
   Histograms severalMissing_Barrel;
@@ -254,6 +255,9 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     puWeightUpHist_ = (TH1F*)fPUDataUpHist_->Clone();
     puWeightDownHist_ = (TH1F*)fPUDataDownHist_->Clone();
   }
+  for (int k = 0; k < 5; k++) {
+    nearbyHits[k].book(fs->mkdir((std::to_string(k)+"_nearbyHits").c_str()),m_isMC);
+  }
   pairedEvents.book(fs->mkdir("pairedEvents"),m_isMC);
   pairedEvents_Barrel.book(fs->mkdir("pairedEvents_Barrel"),m_isMC);
   pairedEvents_CSC.book(fs->mkdir("pairedEvents_CSC"),m_isMC);
@@ -288,7 +292,10 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   ECAL myECAL;
   HCAL myHCAL;
   EventInfo info;
-  if(!info.passTriggers(iEvent,m_trigResultsToken,m_trigEventToken,m_muonPathsToPass)) return;
+  if(!info.passTriggers(iEvent,m_trigResultsToken,m_trigEventToken,m_muonPathsToPass)) {
+    //std::cout << "Failed Trigger***\n";
+    return;
+  }
   pairedEvents.ResetCutFlow();
   if(m_isMC)
   {
@@ -572,6 +579,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       nFoundHits++;
     }
   }
+  nearbyHits[nFoundHits].FillHists(info);
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
     //std::cout << "4\n"; //------------------------------------------------------------------------

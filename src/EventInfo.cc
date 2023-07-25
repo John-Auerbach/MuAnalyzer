@@ -48,7 +48,7 @@ bool EventInfo::passTriggers(const edm::Event& iEvent,
 				edm::EDGetToken m_trigEventToken,
 				std::vector<std::string> m_muonPathsToPass) 
 { 
-   bool passTriggers;
+   bool passTriggers = false;
    edm::Handle<edm::TriggerResults> triggerResults;
    edm::Handle<trigger::TriggerEvent> trigEvent;
    iEvent.getByToken(m_trigEventToken,trigEvent);

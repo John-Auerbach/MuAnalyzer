@@ -32,6 +32,8 @@ HCAL::HCAL() {
   onEdge = false;
   etaEdgeMin = -1;
   phiEdgeMin = -1;
+  HOMuonHitDr = -1;
+  HOMuonHitEnergy = -1;
   for (int depth = 0; depth < 7; depth++) {
     cellDetaByDepth[depth] = 10.;
     cellDphiByDepth[depth] = 10.;

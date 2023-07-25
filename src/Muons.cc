@@ -175,15 +175,19 @@ std::vector<double> Muons::MuonTrigWeight(double MuonPt, double MuonEta) {
 
 int Muons::SelectMuons(const edm::Event& iEvent, edm::EDGetToken m_recoMuonToken) {
   int cutPro = 0;
+  //int fail_test = 0;
   edm::Handle<std::vector<reco::Muon>> recoMuons;
   iEvent.getByToken(m_recoMuonToken, recoMuons);
 
   for (std::vector<reco::Muon>::const_iterator iMuon = recoMuons->begin(); iMuon != recoMuons->end(); iMuon++) {
     //Tight ID
+
     if (!(iMuon->isPFMuon() && iMuon->isGlobalMuon()))
       continue;
+    //if (fail_test == 0) {fail_test = 1;}
     if (!(iMuon->passed(reco::Muon::CutBasedIdTight)))
       continue;
+    //if (fail_test == 1) {fail_test = 2;}
     if (cutPro == 0) {
       cutPro = 1;
     }
@@ -237,5 +241,9 @@ int Muons::SelectMuons(const edm::Event& iEvent, edm::EDGetToken m_recoMuonToken
       }
     }
   }
+  //if (fail_test == 0) {std::cout << "Failed Global\n";}
+  //if (fail_test == 1) {std::cout << "Passed Global, Failed Tight ID\n";}
+  //if (fail_test == 2) {std::cout << "Passed Both\n";}
+  
   return cutPro;
 }

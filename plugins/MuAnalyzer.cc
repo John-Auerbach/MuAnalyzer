@@ -175,7 +175,7 @@ private:
   Histograms pairedEvents;
   Histograms pairedEvents_CSC;
   Histograms pairedEvents_Barrel;
-  Histograms missingHits[5];
+  Histograms missingHits[7];
   Histograms severalMissing;
   Histograms severalMissing_CSC;
   Histograms severalMissing_Barrel;
@@ -255,12 +255,14 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     puWeightUpHist_ = (TH1F*)fPUDataUpHist_->Clone();
     puWeightDownHist_ = (TH1F*)fPUDataDownHist_->Clone();
   }
-  for (int k = 0; k < 5; k++) {
-    missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
-  }
   pairedEvents.book(fs->mkdir("pairedEvents"),m_isMC);
   pairedEvents_Barrel.book(fs->mkdir("pairedEvents_Barrel"),m_isMC);
   pairedEvents_CSC.book(fs->mkdir("pairedEvents_CSC"),m_isMC);
+  for (int k = 0; k < 7; k++) {
+    //std::cout << "mH book Mu\n";
+    missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
+    //std::cout << "mH book Mu+\n";
+  }
   severalMissing.book(fs->mkdir("severalMissing"),m_isMC);
   severalMissing_Barrel.book(fs->mkdir("severalMissing_Barrel"),m_isMC);
   severalMissing_CSC.book(fs->mkdir("severalMissing_CSC"),m_isMC);
@@ -575,11 +577,16 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if (!info.foundDepths[depth]) {
       continue;
     }
+    info.expectedHits++;
     if (info.hitEnergies[depth] > 0.1) {
       nFoundHits++;
     }
   }
+  //std::cout << "mH Fill MuA\n";
+  std::cout << "\nmissingHits: ";
+  std::cout << info.expectedHits - nFoundHits;
   missingHits[info.expectedHits - nFoundHits].FillHists(info);
+  //std::cout << "mH Fill MuA+\n";
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
     //std::cout << "4\n"; //------------------------------------------------------------------------

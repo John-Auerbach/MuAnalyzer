@@ -637,21 +637,21 @@ bool HCAL::FindMuonHits(
   //---------------------------------------------------------------------------------------
 
   auto const& hoht = iEvent.getHandle(horecoToken_);
-
-  double HOMuonHitDr=-1;
   for (HORecHitCollection::const_iterator hohtrechit = (*hoht).begin(); hohtrechit != (*hoht).end(); hohtrechit++) {
     std::shared_ptr<const CaloCellGeometry> hoht_cell = caloGeom->getGeometry(hohtrechit->id());
     Global3DPoint hoht_position = hoht_cell->getPosition();
     const GlobalPoint hitPos = hoht_cell->getPosition();
     TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
     double trackDr = deltaR(hoht_position.eta(), hoht_position.phi(), traj.momentum().eta(), traj.momentum().phi());
+    //std::cout << "HO HCAL.cc\n";
     if ((trackDr < HOMuonHitDr || HOMuonHitDr < 0) && (trackDr < 0.2)) {
       HOMuonHitEnergy = hohtrechit->energy();
       HOMuonHitDr = trackDr;
     } else {
       HOMuonHitEnergy = -1;
       HOMuonHitDr = -1;
-    }
+    } 
+    //std::cout << "HO HCAL.cc+\n";
   }
 
 

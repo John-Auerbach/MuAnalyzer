@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -37,6 +38,53 @@ CSC::CSC(bool loadSFs) {
       printf("Filled a station thingy.\n");
     }
     lFile_SF->Close();
+  }
+}
+
+void CSC::ExtrapolateTrackToDTs(const edm::Event& iEvent,
+                                const edm::EventSetup& iSetup,
+                                edm::EDGetTokenT<DTRecSegment4DCollection> DTSegment_Label,
+                                edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken,
+                                const reco::Track* iTrack,
+                                reco::TransientTrack tracksToVertex,
+                                GlobalPoint VertexPosition) {
+
+  edm::Handle<DTRecSegment4DCollection> TheDTSegments = iEvent.getHandle(DTSegment_Label);
+  iEvent.getByToken(DTSegment_Label, TheDTSegments);
+  minTotalImpactParameter = 10000;
+  int nStations = 4;
+  for (int i = 0; i < nStations; i++) {
+    minDtDrByDepth[i] = -1;
+    minDtDEtaByDepth[i] = -1;
+    minDtDPhiByDepth[i] = -1;
+    minDtDZByDepth[i] = -1;
+  }
+
+  edm::ESHandle<DTGeometry> dtGeom;
+  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  if (TheDTSegments.isValid()) {
+    DTRecSegment4DCollection::id_iterator chamberIdIt;
+    for (chamberIdIt = TheDTSegments->id_begin(); chamberIdIt != TheDTSegments->id_end(); ++chamberIdIt)
+    {
+       const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
+
+       DTRecSegment4DCollection::range range = TheDTSegments->get((*chamberIdIt));
+       for (DTRecSegment4DCollection::const_iterator iSegment = range.first; iSegment != range.second; ++iSegment){
+
+         GlobalPoint TheGlobalPosition = chamber->toGlobal((*iSegment).localPosition());
+         TrajectoryStateClosestToPoint traj = tracksToVertex.trajectoryStateClosestToPoint(TheGlobalPosition);
+         double thisMinDr =
+             deltaR(traj.position().eta(), traj.position().phi(), TheGlobalPosition.eta(), TheGlobalPosition.phi());
+
+         int stationId = chamber->id().station()-1;
+         if (thisMinDr < minDtDrByDepth[stationId] || minDtDrByDepth[stationId] < 0) {
+           minDtDrByDepth[stationId] = thisMinDr;
+           minDtDPhiByDepth[stationId] = traj.position().phi()-TheGlobalPosition.phi();
+           minDtDEtaByDepth[stationId] = traj.position().eta()-TheGlobalPosition.eta();
+           minDtDZByDepth[stationId] = traj.position().z()-TheGlobalPosition.z();
+         }
+       }
+     }
   }
 }
 

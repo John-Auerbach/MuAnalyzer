@@ -19,6 +19,7 @@
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/RPCGeometry"/>
+<use name="Geometry/DTGeometry"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="CLHEP"/>

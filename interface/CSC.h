@@ -53,6 +53,13 @@ public:
                              const reco::Track* iTrack,
                              reco::TransientTrack tracksToVertex,
                              GlobalPoint VertexPosition);
+  void ExtrapolateTrackToDTs(const edm::Event& iEvent,
+                             const edm::EventSetup& iSetup,
+                             edm::EDGetTokenT<DTRecSegment4DCollection> DTSegment_Label,
+                             edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken,
+                             const reco::Track* iTrack,
+                             reco::TransientTrack tracksToVertex,
+                             GlobalPoint VertexPosition);
   void ExtrapolateMuonToCSC(const edm::Event& iEvent,
                             const edm::EventSetup& iSetup,
                             edm::EDGetTokenT<CSCSegmentCollection> CSCSegment_Label,
@@ -83,6 +90,13 @@ public:
   int nSimCSCHits;
   double CSCdEta;
   double minDrByDepth[4];
+  double minDPhiByDepth[4];
+  double minDEtaByDepth[4];
+  double minDZByDepth[4];
+  double minDtDrByDepth[4];
+  double minDtDPhiByDepth[4];
+  double minDtDEtaByDepth[4];
+  double minDtDZByDepth[4];
   double minSimCSCDr;
   double CSCdPhi;
   double recMinDR;

@@ -173,12 +173,12 @@ private:
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   Histograms pairedEvents;
-  Histograms pairedEvents_CSC;
-  Histograms pairedEvents_Barrel;
+  Histograms pairedEvents_HE;
+  Histograms pairedEvents_HB;
   Histograms missingHits[7];
   Histograms severalMissing;
-  Histograms severalMissing_CSC;
-  Histograms severalMissing_Barrel;
+  Histograms severalMissing_HE;
+  Histograms severalMissing_HB;
   Histograms genMatched;
 };
 
@@ -256,16 +256,16 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
     puWeightDownHist_ = (TH1F*)fPUDataDownHist_->Clone();
   }
   pairedEvents.book(fs->mkdir("pairedEvents"),m_isMC);
-  pairedEvents_Barrel.book(fs->mkdir("pairedEvents_Barrel"),m_isMC);
-  pairedEvents_CSC.book(fs->mkdir("pairedEvents_CSC"),m_isMC);
+  pairedEvents_HB.book(fs->mkdir("pairedEvents_HB"),m_isMC);
+  pairedEvents_HE.book(fs->mkdir("pairedEvents_HE"),m_isMC);
   for (int k = 0; k < 7; k++) {
     //std::cout << "mH book Mu\n";
     missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
     //std::cout << "mH book Mu+\n";
   }
   severalMissing.book(fs->mkdir("severalMissing"),m_isMC);
-  severalMissing_Barrel.book(fs->mkdir("severalMissing_Barrel"),m_isMC);
-  severalMissing_CSC.book(fs->mkdir("severalMissing_CSC"),m_isMC);
+  severalMissing_HB.book(fs->mkdir("severalMissing_HB"),m_isMC);
+  severalMissing_HE.book(fs->mkdir("severalMissing_HE"),m_isMC);
   genMatched.book(fs->mkdir("genMatched"),m_isMC);
   //std::cout << "constr\n"; //------------------------------------------------------------------------
 
@@ -569,8 +569,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   pairedEvents.FillHists(info);  
   //std::cout << "2\n"; //------------------------------------------------------------------------
 
-  if(std::abs(info.probeTrackEta)<1.6){pairedEvents_Barrel.FillHists(info);}
-  else{pairedEvents_CSC.FillHists(info);}
+  if(std::abs(info.probeTrackEta)<1.6){pairedEvents_HB.FillHists(info);}
+  else{pairedEvents_HE.FillHists(info);}
  // std::cout << "3\n"; //------------------------------------------------------------------------
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
@@ -591,8 +591,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     severalMissing.FillHists(info);
     //std::cout << "4\n"; //------------------------------------------------------------------------
 
-    if(std::abs(info.probeTrackEta)<1.6){severalMissing_Barrel.FillHists(info);}
-    else{severalMissing_CSC.FillHists(info);}
+    if(std::abs(info.probeTrackEta)<1.6){severalMissing_HB.FillHists(info);}
+    else{severalMissing_HE.FillHists(info);}
     //std::cout << "5\n"; //------------------------------------------------------------------------
   }
   //std::cout << "analyze\n"; //------------------------------------------------------------------------

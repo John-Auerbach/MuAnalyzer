@@ -36,6 +36,8 @@ public:
   TH1F* m_HOMuonHitEnergy;
   TH1F* m_HOMuonHitDr;
   TH1F* m_missingCount;
+  TH1F* m_expectedCount;
+  TH1F* m_foundCount;
   //Histograms
   TH1F* m_eventCount;
   TH1F* m_eventWeight;

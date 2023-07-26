@@ -30,12 +30,14 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
   isMC=MC;
   //std::cout << "hE Hist.cc\n";
   for (int i = 0; i < 7; i++) {
-    m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,100);
+    m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,10);
   }
   //std::cout << "hE Hist.cc+\n";
-  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,100);
+  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,10);
   m_HOMuonHitDr = histFolder.make<TH1F>("HOMuonHitDr", "; ;Events",100,0,10);
   m_missingCount = histFolder.make<TH1F>("missingCount", "; ;Events",8,-0.5,7.5);
+  m_expectedCount = histFolder.make<TH1F>("expectedCount", "; ;Events",8,-0.5,7.5);
+  m_foundCount = histFolder.make<TH1F>("foundCount", "; ;Events",8,-0.5,7.5);
   m_eventCount = histFolder.make<TH1F>("eventCount", "; ;Events", 1, 0, 1);
   m_eventCount_PUup = histFolder.make<TH1F>("eventCount_PUup", "; ;Events", 1, 0, 1);
   m_eventCount_PUdown = histFolder.make<TH1F>("eventCount_PUdown", "; ;Events", 1, 0, 1);
@@ -155,12 +157,21 @@ void Histograms::FillHists(EventInfo info) {
   m_HOMuonHitDr->Fill(info.HOMuonHitDr);
 
   int missingCount = 0;
+  int expectedCount = 0;
+  int foundCount = 0;
   for  (int depth = 0; depth < 7; depth++) {
-    if (info.foundDepths[depth] && info.hitEnergies[depth] < 0.1) {
-      missingCount++;
+    if (info.foundDepths[depth]) {
+      expectedCount++;
+      if (info.hitEnergies[depth] < 0.1) {
+        missingCount++;
+      } else {
+        foundCount++;
+      }
     }
   }
   m_missingCount->Fill(missingCount);
+  m_expectedCount->Fill(expectedCount);
+  m_foundCount->Fill(foundCount);
 
   double eventWeightPUup, eventWeightPUdown, eventWeightIDup, eventWeightIDdown, eventWeightISOup, eventWeightISOdown,
       eventWeightTrigup, eventWeightTrigdown;

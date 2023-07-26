@@ -58,6 +58,8 @@ void CSC::ExtrapolateTrackToDTs(const edm::Event& iEvent,
     minDtDEtaByDepth[i] = -1;
     minDtDPhiByDepth[i] = -1;
     minDtDZByDepth[i] = -1;
+    DtHitPhiByDepth[i] = -100;
+    DtHitZByDepth[i] = -100;
   }
 
   edm::ESHandle<DTGeometry> dtGeom;
@@ -82,6 +84,8 @@ void CSC::ExtrapolateTrackToDTs(const edm::Event& iEvent,
            minDtDPhiByDepth[stationId] = traj.position().phi()-TheGlobalPosition.phi();
            minDtDEtaByDepth[stationId] = traj.position().eta()-TheGlobalPosition.eta();
            minDtDZByDepth[stationId] = traj.position().z()-TheGlobalPosition.z();
+           DtHitPhiByDepth[stationId] = traj.position().phi();
+           DtHitZByDepth[stationId] = traj.position().z();
          }
        }
      }

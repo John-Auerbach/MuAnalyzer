@@ -97,6 +97,8 @@ public:
   double minDtDPhiByDepth[4];
   double minDtDEtaByDepth[4];
   double minDtDZByDepth[4];
+  double DtHitPhiByDepth[4];
+  double DtHitZByDepth[4];
   double minSimCSCDr;
   double CSCdPhi;
   double recMinDR;

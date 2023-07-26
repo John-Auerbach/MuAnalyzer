@@ -87,6 +87,7 @@
 #include "DarkPhoton/MuAnalyzer/interface/Tracks.h"
 #include "DarkPhoton/MuAnalyzer/interface/ECAL.h"
 #include "DarkPhoton/MuAnalyzer/interface/HCAL.h"
+#include "DarkPhoton/MuAnalyzer/interface/CSC.h"
 
 // class declaration
 //
@@ -293,6 +294,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Tracks myTracks;
   ECAL myECAL;
   HCAL myHCAL;
+  CSC myCSC;
   EventInfo info;
   if(!info.passTriggers(iEvent,m_trigResultsToken,m_trigEventToken,m_muonPathsToPass)) {
     //std::cout << "Failed Trigger***\n";
@@ -450,6 +452,10 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.probeTrackP = selectedTrack->p();
   info.probeTrackPt = selectedTrack->pt();
   info.probeTrackPhi = selectedTrack->phi();
+  for (int i = 0; i < 4; i++) {
+    info.DtHitPhiByDepth[i] = myCSC.DtHitPhiByDepth[i];
+    info.DtHitZByDepth[i] = myCSC.DtHitZByDepth[i];
+  }
   info.dxy = selectedTrack->dxy();
   info.dca = probeTIP;
   info.dcal = probeLIP;

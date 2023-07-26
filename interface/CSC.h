@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -53,10 +56,11 @@ public:
                              const reco::Track* iTrack,
                              reco::TransientTrack tracksToVertex,
                              GlobalPoint VertexPosition);
-  void ExtrapolateTrackToDTs(const edm::Event& iEvent,
+  void ExtrapolateTrackToDT(const edm::Event& iEvent,
                              const edm::EventSetup& iSetup,
                              edm::EDGetTokenT<DTRecSegment4DCollection> DTSegment_Label,
                              edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken,
+                             edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_dtGeomToken,
                              const reco::Track* iTrack,
                              reco::TransientTrack tracksToVertex,
                              GlobalPoint VertexPosition);

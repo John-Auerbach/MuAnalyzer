@@ -41,10 +41,11 @@ CSC::CSC(bool loadSFs) {
   }
 }
 
-void CSC::ExtrapolateTrackToDTs(const edm::Event& iEvent,
+void CSC::ExtrapolateTrackToDT(const edm::Event& iEvent,
                                 const edm::EventSetup& iSetup,
                                 edm::EDGetTokenT<DTRecSegment4DCollection> DTSegment_Label,
                                 edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken,
+                                edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken,
                                 const reco::Track* iTrack,
                                 reco::TransientTrack tracksToVertex,
                                 GlobalPoint VertexPosition) {
@@ -62,13 +63,12 @@ void CSC::ExtrapolateTrackToDTs(const edm::Event& iEvent,
     DtHitZByDepth[i] = -100;
   }
 
-  edm::ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry* dtGeometry = &iSetup.getData(dtGeomToken);
   if (TheDTSegments.isValid()) {
     DTRecSegment4DCollection::id_iterator chamberIdIt;
     for (chamberIdIt = TheDTSegments->id_begin(); chamberIdIt != TheDTSegments->id_end(); ++chamberIdIt)
     {
-       const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
+       const DTChamber* chamber = dtGeometry->chamber(*chamberIdIt);
 
        DTRecSegment4DCollection::range range = TheDTSegments->get((*chamberIdIt));
        for (DTRecSegment4DCollection::const_iterator iSegment = range.first; iSegment != range.second; ++iSegment){

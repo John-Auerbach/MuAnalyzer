@@ -137,6 +137,9 @@ private:
   edm::EDGetTokenT<std::vector<reco::Track>> trackCollection_label;
   edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVertices_Label;
   edm::EDGetToken m_genParticleToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> DTSegment_Label;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitToken;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken;
   edm::EDGetToken m_trigResultsToken;
   edm::EDGetToken m_trigEventToken;
   edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHit_Label;
@@ -199,6 +202,9 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
       trackCollection_label(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       primaryVertices_Label(
           consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
+      DTSegment_Label(consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("DTSegmentLabel"))),
+      rpcRecHitToken(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("RPCRecHitTag"))),
+      dtGeomToken((esConsumes())),
       reducedEndcapRecHitCollection_Label(
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHits"))),
       reducedBarrelRecHitCollection_Label(
@@ -433,6 +439,15 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       return;
     }
   }
+  GlobalPoint FillerPoint;
+  myCSC.ExtrapolateTrackToDT(iEvent,
+                             iSetup,
+                             DTSegment_Label,
+                             rpcRecHitToken,
+                             dtGeomToken,
+                             selectedTrack,
+                             transientTrackBuilder->build(selectedTrack),
+                             FillerPoint);
   pairedEvents.IncCutFlow(info.eventWeight);
   info.nTagMuons = myMuons.selectedMuons.size();
   info.probeTrackIso =
@@ -461,7 +476,6 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.dcal = probeLIP;
   info.dsz = selectedTrack->dsz();
   info.diMuonMass = diMuonMass;
-  GlobalPoint FillerPoint;
   double staMinDr = 7.;
   if(m_isMC){
      info.minGenMuDr = MatchTrackToGenMuon(iEvent,selectedTrack, m_genParticleToken);

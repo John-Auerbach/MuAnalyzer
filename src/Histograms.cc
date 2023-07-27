@@ -91,7 +91,10 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
   m_ProbeTrackPtEta = histFolder.make<TH2F>("ProbeTrackPtEta", ";#Pt (GeV);#eta; Events", 50, 20, 70, 80, -4, 4);
   m_ProbeTrackEtaPhi = histFolder.make<TH2F>("ProbeTrackEtaPhi", ";#eta;#phi;Events", 100, -2.6, 2.6, 100, -3.15, 3.15);
   for (int i = 0; i < 4; i++) {
-    m_DtHitZPhiByDepth[i] = histFolder.make<TH2F>((std::string("DTHitZPhi_S")+std::to_string(i)).c_str(), ";#z;#phi;Events", 100, -7, 7, 100, -3.15, 3.15);
+    m_DtHitZPhiByDepth[i] = histFolder.make<TH2F>((std::string("DTHitZPhi_S")+std::to_string(i)).c_str(), ";#z;#phi;Events", 100, -700, 700, 100, -3.15, 3.15);
+    m_minDtDrByDepth[i] = histFolder.make<TH1F>((std::string("minDtDr_S")+std::to_string(i)).c_str(), ";#Delta R; Events", 200, -1, 1);
+    m_minDtDPhiByDepth[i] = histFolder.make<TH1F>((std::string("minDtDPhi_S")+std::to_string(i)).c_str(), ";#Delta Phi; Events", 200, -1, 1);
+    m_minDtDZByDepth[i] = histFolder.make<TH1F>((std::string("minDtDZ_S")+std::to_string(i)).c_str(), ";#Delta Z; Events", 200, -1, 1);
   }
   m_ProbeEcalIsolation = histFolder.make<TH1F>("ProbeEcalIsolation", ";Ecal Isolation; Events", 100, 0, 100);
   m_minGenMuDr = histFolder.make<TH1F>("minGenMuDr", "; #Delta R; Events", 200, 0, 4);
@@ -232,6 +235,9 @@ void Histograms::FillHists(EventInfo info) {
   m_ProbeTrackEtaPhi->Fill(info.probeTrackEta, info.probeTrackPhi, info.eventWeight);
   for (int i = 0; i < 4; i++) {
     m_DtHitZPhiByDepth[i]->Fill(info.DtHitZByDepth[i], info.DtHitPhiByDepth[i], info.eventWeight);
+    m_minDtDrByDepth[i]->Fill(info.minDtDrByDepth[i], info.eventWeight);
+    m_minDtDPhiByDepth[i]->Fill(info.minDtDPhiByDepth[i], info.eventWeight);
+    m_minDtDZByDepth[i]->Fill(info.minDtDZByDepth[i], info.eventWeight);
   }
   m_DiMuonMass->Fill(info.diMuonMass, info.eventWeight);
   if(isMC)

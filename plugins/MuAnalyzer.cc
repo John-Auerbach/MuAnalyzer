@@ -183,6 +183,7 @@ private:
   Histograms severalMissing;
   Histograms severalMissing_HE;
   Histograms severalMissing_HB;
+  Histograms noExpected;
   Histograms genMatched;
 };
 
@@ -273,6 +274,7 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
   severalMissing.book(fs->mkdir("severalMissing"),m_isMC);
   severalMissing_HB.book(fs->mkdir("severalMissing_HB"),m_isMC);
   severalMissing_HE.book(fs->mkdir("severalMissing_HE"),m_isMC);
+  noExpected.book(fs->mkdir("noExpected"),m_isMC);
   genMatched.book(fs->mkdir("genMatched"),m_isMC);
   //std::cout << "constr\n"; //------------------------------------------------------------------------
 
@@ -470,6 +472,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   for (int i = 0; i < 4; i++) {
     info.DtHitPhiByDepth[i] = myCSC.DtHitPhiByDepth[i];
     info.DtHitZByDepth[i] = myCSC.DtHitZByDepth[i];
+    info.minDtDrByDepth[i] = myCSC.minDtDrByDepth[i];
+    info.minDtDPhiByDepth[i] = myCSC.minDtDPhiByDepth[i];
+    info.minDtDZByDepth[i] = myCSC.minDtDZByDepth[i];
   }
   info.dxy = selectedTrack->dxy();
   info.dca = probeTIP;
@@ -616,6 +621,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     //std::cout << "5\n"; //------------------------------------------------------------------------
   }
   //std::cout << "analyze\n"; //------------------------------------------------------------------------
+  if (info.expectedHits == 0) {
+    noExpected.FillHists(info);
+  }
 }
 
 

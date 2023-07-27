@@ -642,15 +642,12 @@ bool HCAL::FindMuonHits(
     Global3DPoint hoht_position = hoht_cell->getPosition();
     const GlobalPoint hitPos = hoht_cell->getPosition();
     TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
-    double trackDr = deltaR(hoht_position.eta(), hoht_position.phi(), traj.momentum().eta(), traj.momentum().phi());
+    double trackDr = deltaR(hoht_position.eta(), hoht_position.phi(), traj.position().eta(), traj.position().phi());
     //std::cout << "HO HCAL.cc\n";
     if ((trackDr < HOMuonHitDr || HOMuonHitDr < 0) && (trackDr < 0.2)) {
       HOMuonHitEnergy = hohtrechit->energy();
       HOMuonHitDr = trackDr;
-    } else {
-      HOMuonHitEnergy = -1;
-      HOMuonHitDr = -1;
-    } 
+    }
     //std::cout << "HO HCAL.cc+\n";
   }
 

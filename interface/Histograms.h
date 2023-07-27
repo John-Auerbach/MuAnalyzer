@@ -66,6 +66,9 @@ public:
   TH1F* m_ProbeTrackEta;
   TH2F* m_ProbeTrackEtaPhi;
   TH2F* m_DtHitZPhiByDepth[4];
+  TH1F* m_minDtDrByDepth[4];
+  TH1F* m_minDtDPhiByDepth[4];
+  TH1F* m_minDtDZByDepth[4];
   TH1F* m_ProbeTrackP;
   TH1F* m_ProbeMuonEta;
   TH1F* m_ProbeMuonPt;

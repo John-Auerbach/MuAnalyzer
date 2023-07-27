@@ -42,6 +42,9 @@ public:
   double probeTrackP;
   double DtHitPhiByDepth[4];
   double DtHitZByDepth[4];
+  double minDtDrByDepth[4];
+  double minDtDPhiByDepth[4];
+  double minDtDZByDepth[4];
   double pairVtxChi;
   double diMuonMass;
   //Transient Track Studies

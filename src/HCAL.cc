@@ -40,6 +40,7 @@ HCAL::HCAL() {
     cellEtaEdgeDistance[depth] = 10.;
     cellPhiEdgeDistance[depth] = 10.;
     m_hitEnergies[depth] = 0;
+    m_hitDrs[depth] = 0;
     foundDepths[depth] = false;
   }
 }
@@ -662,9 +663,10 @@ bool HCAL::FindMuonHits(
     printf("Could not find HCAL RecHits.\n");
   } else {
     const HBHERecHitCollection* hbhe = hcalRecHits.product();
-    double layerenergies[7], lowthreshadjacent[7], neighborenergies[7];
+    double layerenergies[7], layerdrs[7], lowthreshadjacent[7], neighborenergies[7];
     for (int i = 0; i < 7; i++) {
       layerenergies[i] = 0;
+      layerdrs[i] = 0;
       lowthreshadjacent[i] = 0;
       neighborenergies[i] = 0;
     }
@@ -672,7 +674,10 @@ bool HCAL::FindMuonHits(
     for (HBHERecHitCollection::const_iterator hbherechit = hbhe->begin(); hbherechit != hbhe->end(); hbherechit++) {
       HcalDetId id(hbherechit->detid());
       std::shared_ptr<const CaloCellGeometry> hbhe_cell = caloGeom->getGeometry(hbherechit->id());
-      //       Global3DPoint hbhe_position = hbhe_cell->getPosition();
+      Global3DPoint hbhe_position = hbhe_cell->getPosition();
+      const GlobalPoint hitPos = hbhe_cell->getPosition();
+      TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
+      double trackDr = deltaR(hbhe_position.eta(), hbhe_position.phi(), traj.position().eta(), traj.position().phi());
 
       HcalDetId* trackmatch = std::find(std::begin(AdjacentCells), std::end(AdjacentCells), id);
       HcalDetId* centermatch = std::find(std::begin(CenterCells), std::end(CenterCells), id);
@@ -689,8 +694,9 @@ bool HCAL::FindMuonHits(
           if (hbherechit->energy() > 0.8) {
             ReducedConeE += hbherechit->energy();
           }
-          if (id.depth() < 8) {
+          if (id.depth() < 8) { // && trackDr <
             layerenergies[id.depth() - 1] += hbherechit->energy();
+            layerdrs[id.depth() - 1] +=  trackDr;
           }
         }
         if (neighbormatch != std::end(NeighborCells)) {
@@ -716,6 +722,7 @@ bool HCAL::FindMuonHits(
     m_failAdjacent = false;
     for (int i = 0; i < 7; i++) {
       m_hitEnergies[i] = layerenergies[i];
+      m_hitDrs[i] = layerdrs[i];
       m_neighborHitEnergies[i] = neighborenergies[i];
       if (fabs(TrackiEta) > 25 || i < 6) {
         if (layerenergies[i] < Hit_Thresholds[i]) {

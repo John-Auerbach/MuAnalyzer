@@ -87,6 +87,7 @@ public:
   double BigConeEnergy;
   int m_HitsOverThresh;
   double m_hitEnergies[7];
+  double m_hitDrs[7];
   double m_neighborHitEnergies[7];
   double m_neighborHitEnergiesPhi[7];
   bool m_failAdjacent;

@@ -79,7 +79,7 @@ void CSC::ExtrapolateTrackToDT(const edm::Event& iEvent,
              deltaR(traj.position().eta(), traj.position().phi(), TheGlobalPosition.eta(), TheGlobalPosition.phi());
 
          int stationId = chamber->id().station()-1;
-         if ((thisMinDr < minDtDrByDepth[stationId] || minDtDrByDepth[stationId] < 0) && (thisMinDr<0.025)) {
+         if ((thisMinDr < minDtDrByDepth[stationId] || minDtDrByDepth[stationId] < 0) && (thisMinDr<0.1)) {
            minDtDrByDepth[stationId] = thisMinDr;
            minDtDPhiByDepth[stationId] = traj.position().phi()-TheGlobalPosition.phi();
            minDtDEtaByDepth[stationId] = traj.position().eta()-TheGlobalPosition.eta();

@@ -90,6 +90,7 @@ public:
   double cellCenterDEta;
   double cellCenterDPhi;
   double hitEnergies[7];
+  double hitDrs[7];
   double neighborHitEnergies[7];
   int bremDepth;
   int hitsOverThresh;

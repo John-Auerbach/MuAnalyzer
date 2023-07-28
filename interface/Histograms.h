@@ -33,6 +33,7 @@ public:
 public:
   bool isMC;
   TH1F* m_hitEnergies[7];
+  TH1F* m_hitDrs[7];
   TH1F* m_HOMuonHitEnergy;
   TH1F* m_HOMuonHitDr;
   TH1F* m_missingCount;

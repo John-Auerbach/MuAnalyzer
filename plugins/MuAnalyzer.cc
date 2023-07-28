@@ -578,6 +578,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   for (int k = 0; k < 7; k++) {
     info.hitEnergies[k] = myHCAL.m_hitEnergies[k];
+    info.hitDrs[k] = myHCAL.m_hitDrs[k];
     info.neighborHitEnergies[k] = myHCAL.m_neighborHitEnergies[k];
   }
   info.bremDepth = myHCAL.m_bremDepth;

@@ -31,9 +31,10 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
   //std::cout << "hE Hist.cc\n";
   for (int i = 0; i < 7; i++) {
     m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,10);
+    m_hitDrs[i] = histFolder.make<TH1F>(("MuonHitDr_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,10);
   }
   //std::cout << "hE Hist.cc+\n";
-  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,2);
+  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",200,0,2);
   m_HOMuonHitDr = histFolder.make<TH1F>("HOMuonHitDr", "; ;Events",100,0,10);
   m_missingCount = histFolder.make<TH1F>("missingCount", "; ;Events",8,-0.5,7.5);
   m_expectedCount = histFolder.make<TH1F>("expectedCount", "; ;Events",8,-0.5,7.5);
@@ -153,6 +154,7 @@ void Histograms::FillHists(EventInfo info) {
   for (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
       m_hitEnergies[depth]->Fill(info.hitEnergies[depth]);
+      m_hitDrs[depth]->Fill(info.hitDrs[depth]);
     }
   }
   //std::cout << "hE Fill Hist.cc+\n";

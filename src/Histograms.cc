@@ -33,7 +33,7 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
     m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,10);
   }
   //std::cout << "hE Hist.cc+\n";
-  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,10);
+  m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",100,0,2);
   m_HOMuonHitDr = histFolder.make<TH1F>("HOMuonHitDr", "; ;Events",100,0,10);
   m_missingCount = histFolder.make<TH1F>("missingCount", "; ;Events",8,-0.5,7.5);
   m_expectedCount = histFolder.make<TH1F>("expectedCount", "; ;Events",8,-0.5,7.5);
@@ -91,10 +91,10 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
   m_ProbeTrackPtEta = histFolder.make<TH2F>("ProbeTrackPtEta", ";#Pt (GeV);#eta; Events", 50, 20, 70, 80, -4, 4);
   m_ProbeTrackEtaPhi = histFolder.make<TH2F>("ProbeTrackEtaPhi", ";#eta;#phi;Events", 100, -2.6, 2.6, 100, -3.15, 3.15);
   for (int i = 0; i < 4; i++) {
-    m_DtHitZPhiByDepth[i] = histFolder.make<TH2F>((std::string("DTHitZPhi_S")+std::to_string(i)).c_str(), ";#z;#phi;Events", 100, -700, 700, 100, -3.15, 3.15);
-    m_minDtDrByDepth[i] = histFolder.make<TH1F>((std::string("minDtDr_S")+std::to_string(i)).c_str(), ";#Delta R; Events", 200, -1, 1);
-    m_minDtDPhiByDepth[i] = histFolder.make<TH1F>((std::string("minDtDPhi_S")+std::to_string(i)).c_str(), ";#Delta Phi; Events", 200, -1, 1);
-    m_minDtDZByDepth[i] = histFolder.make<TH1F>((std::string("minDtDZ_S")+std::to_string(i)).c_str(), ";#Delta Z; Events", 200, -1, 1);
+    m_DtHitZPhiByDepth[i] = histFolder.make<TH2F>((std::string("DTHitZPhi_S")+std::to_string(i)).c_str(), ";#z;#phi;Events", 100, -1500, 1500, 100, -3.15, 3.15);
+    m_minDtDrByDepth[i] = histFolder.make<TH1F>((std::string("minDtDr_S")+std::to_string(i)).c_str(), ";#Delta R; Events", 200, 0, 0.1);
+    m_minDtDPhiByDepth[i] = histFolder.make<TH1F>((std::string("minDtDPhi_S")+std::to_string(i)).c_str(), ";#Delta Phi; Events", 200, -0.1, 0.1);
+    m_minDtDZByDepth[i] = histFolder.make<TH1F>((std::string("minDtDZ_S")+std::to_string(i)).c_str(), ";#Delta Z; Events", 200, -0.1, 0.1);
   }
   m_ProbeEcalIsolation = histFolder.make<TH1F>("ProbeEcalIsolation", ";Ecal Isolation; Events", 100, 0, 100);
   m_minGenMuDr = histFolder.make<TH1F>("minGenMuDr", "; #Delta R; Events", 200, 0, 4);

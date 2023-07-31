@@ -578,7 +578,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   for (int k = 0; k < 7; k++) {
     info.hitEnergies[k] = myHCAL.m_hitEnergies[k];
+    //std::cout << "mu: info <- myHCAL-\n";
     info.hitDrs[k] = myHCAL.m_hitDrs[k];
+    //std::cout << "mu: info <- myHCAL+\n";
     info.neighborHitEnergies[k] = myHCAL.m_neighborHitEnergies[k];
   }
   info.bremDepth = myHCAL.m_bremDepth;
@@ -609,8 +611,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   //std::cout << "mH Fill MuA\n";
-  std::cout << "\nmissingHits: ";
+  std::cout << "missingHits: ";
   std::cout << info.expectedHits - nFoundHits;
+  std::cout << "\n";
   missingHits[info.expectedHits - nFoundHits].FillHists(info);
   //std::cout << "mH Fill MuA+\n";
   if (info.expectedHits - nFoundHits > 2) {

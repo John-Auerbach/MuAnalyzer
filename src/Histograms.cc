@@ -154,7 +154,9 @@ void Histograms::FillHists(EventInfo info) {
   for (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
       m_hitEnergies[depth]->Fill(info.hitEnergies[depth]);
+      //std::cout << "FillHist-\n";
       m_hitDrs[depth]->Fill(info.hitDrs[depth]);
+      //std::cout << "FillHist+\n";
     }
   }
   //std::cout << "hE Fill Hist.cc+\n";

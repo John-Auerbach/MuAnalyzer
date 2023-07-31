@@ -524,9 +524,7 @@ bool HCAL::FindMuonHits(
   m_bremDepth = BremDepth;
   ieta = TrackiEta;
   iphi = TrackiPhi;
-  if (fabs(TrackiEta) < 17) {
-    return false;
-  }
+
   if (TrackiEta < -16 && TrackiPhi > 52 && TrackiPhi < 64) {
     return false;
   }
@@ -674,19 +672,22 @@ bool HCAL::FindMuonHits(
     for (HBHERecHitCollection::const_iterator hbherechit = hbhe->begin(); hbherechit != hbhe->end(); hbherechit++) {
       HcalDetId id(hbherechit->detid());
       std::shared_ptr<const CaloCellGeometry> hbhe_cell = caloGeom->getGeometry(hbherechit->id());
+      //std::cout << "trackDR-\n";
       Global3DPoint hbhe_position = hbhe_cell->getPosition();
+      //std::cout <<"Global3D\n";
       const GlobalPoint hitPos = hbhe_cell->getPosition();
+      //std::cout <<"GlobalPoint\n";
       TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
+      //std::cout <<"TrajectoryStateClosestToPoint\n";
       double trackDr = deltaR(hbhe_position.eta(), hbhe_position.phi(), traj.position().eta(), traj.position().phi());
-
+      //std::cout << std::to_string(hbhe_position.eta())+std::to_string(traj.position().eta());
+      //std::cout <<"trackDr = "+std::to_string(trackDr)+"\n";
+      //std::cout << "trackDR+\n";
       HcalDetId* trackmatch = std::find(std::begin(AdjacentCells), std::end(AdjacentCells), id);
       HcalDetId* centermatch = std::find(std::begin(CenterCells), std::end(CenterCells), id);
       HcalDetId* neighbormatch = std::find(std::begin(NeighborCells), std::end(NeighborCells), id);
       HcalDetId* lowthreshmatch = std::find(std::begin(LowThreshAdjacentCells), std::end(LowThreshAdjacentCells), id);
       int HitiEta = id.ieta();
-      if (fabs(HitiEta) < 16) {
-        continue;
-      }
       if (hbherechit->energy() != 0) {
         if (centermatch != std::end(CenterCells)) {
           Hits[0]++;
@@ -696,7 +697,9 @@ bool HCAL::FindMuonHits(
           }
           if (id.depth() < 8) { // && trackDr <
             layerenergies[id.depth() - 1] += hbherechit->energy();
+            //std::cout << "layerdr-\n";
             layerdrs[id.depth() - 1] +=  trackDr;
+            //std::cout << "layerdr+\n";
           }
         }
         if (neighbormatch != std::end(NeighborCells)) {
@@ -707,7 +710,7 @@ bool HCAL::FindMuonHits(
         if (trackmatch != std::end(AdjacentCells)) {
           if (centermatch != std::end(CenterCells)) {
             if (id.depth() < 8) {
-              //if(hbherechit->energy()>layerenergies[id.depth()-1]){layerenergies[id.depth()-1]=hbherechit->energy();}
+              if(hbherechit->energy()>layerenergies[id.depth()-1]){layerenergies[id.depth()-1]=hbherechit->energy();}
             }
           }
         }

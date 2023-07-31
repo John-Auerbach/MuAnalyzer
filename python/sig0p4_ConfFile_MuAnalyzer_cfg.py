@@ -24,7 +24,8 @@ options.register( 'runLocally',
 
 options.parseArguments()
 
-process = cms.Process("TEST")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("TestAnalyzer", Run3)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -33,8 +34,10 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+from Configuration.AlCa.GlobalTag import GlobalTag
 if(options.isMC):
-        process.GlobalTag.globaltag = cms.string('106X_upgrade2018_realistic_v15_L1v1')
+        process.GlobalTag=GlobalTag(process.GlobalTag, '124X_mcRun3_2022_realistic_v12', '')
+        #process.GlobalTag.globaltag = cms.string('106X_upgrade2018_realistic_v15_L1v1')
 else:
         process.GlobalTag.globaltag = cms.string('106X_dataRun2_v32')
 

@@ -292,7 +292,7 @@ MuAnalyzer::~MuAnalyzer() {
 
 // ------------ method called for each event  ------------
 void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //std::cout << "start analyze\n"; //----------------------------------------------------------------------- 
+//  std::cout << "start analyze\n"; //qtag----------------------------------------------------------------------- 
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -441,6 +441,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       return;
     }
   }
+//  std::cout << "ExtrapolateTrackToDT\n";//qtag
   GlobalPoint FillerPoint;
   myCSC.ExtrapolateTrackToDT(iEvent,
                              iSetup,
@@ -532,6 +533,12 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GlobalPoint TrackGlobalPoint =
       GlobalPoint(GlobalPoint::Polar(selectedTrack->theta(), selectedTrack->phi(), 525));
   bool m_studyBarrel = true;
+  reco::TransientTrack track = transientTrackBuilder->build(selectedTrack);
+  double charge = selectedTrack->charge(); 
+//  std::cout << "FindMuonHits\n";//qtag
+  std::cout << "eta: "+std::to_string(selectedTrack->eta())+" ";
+  std::cout << "phi: "+std::to_string(selectedTrack->phi())+" ";
+  std::cout << "pt: "+std::to_string(selectedTrack->pt())+"\n";
   if (!myHCAL.FindMuonHits(iEvent,
                            iSetup,
                            HBHERecHit_Label,
@@ -539,10 +546,11 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                            geometryToken_,
                            topoToken_,
                            TrackGlobalPoint,
-                           selectedTrack->charge(),
-                           transientTrackBuilder->build(selectedTrack))&&!m_studyBarrel) {
+                           charge,
+                           track)) {
     return;
   }
+//  std::cout<<"setinfo\n";//qtag
   info.HOMuonHitEnergy = myHCAL.HOMuonHitEnergy;
   info.HOMuonHitDr = myHCAL.HOMuonHitDr;
   info.nCellsFound = myHCAL.CellsFound;
@@ -558,6 +566,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   //Check fail HCAL location here (or probably a bit earlier actually)
   pairedEvents.IncCutFlow(info.eventWeight);
+//  std::cout<<"CaloJet\n";//qtag
   //Calo Jet Stuff
   double nearProbeCaloJetHadE = -1.;
   double nearProbeCaloJetEmE = -1.;
@@ -576,6 +585,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
   }
+//  std::cout<<"hitenergies/Drs\n";//qtag
   for (int k = 0; k < 7; k++) {
     info.hitEnergies[k] = myHCAL.m_hitEnergies[k];
     //std::cout << "mu: info <- myHCAL-\n";
@@ -583,6 +593,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     //std::cout << "mu: info <- myHCAL+\n";
     info.neighborHitEnergies[k] = myHCAL.m_neighborHitEnergies[k];
   }
+//  std::cout<<"setinfo2\n";//qtag
   info.bremDepth = myHCAL.m_bremDepth;
   info.hitsOverThresh = myHCAL.m_HitsOverThresh;
   info.coneHits = myHCAL.m_coneHits;
@@ -591,6 +602,7 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   info.caloJetHcalE = nearProbeCaloJetHadE;
   info.caloJetEcalE = nearProbeCaloJetEmE;
   info.caloJetTotalE = nearProbeCaloJetHadE + nearProbeCaloJetEmE;
+//  std::cout << "FillHists\n";//qtag
   //std::cout << "1\n"; //------------------------------------------------------------------------
   if(info.minGenMuDr<0.05){genMatched.FillHists(info);}
 
@@ -624,10 +636,10 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     else{severalMissing_HE.FillHists(info);}
     //std::cout << "5\n"; //------------------------------------------------------------------------
   }
-  //std::cout << "analyze\n"; //------------------------------------------------------------------------
   if (info.expectedHits == 0) {
     noExpected.FillHists(info);
   }
+//  std::cout << "analyze\n"; //qtag----------------------------------------------------------------------- 
 }
 
 

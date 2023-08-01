@@ -31,7 +31,7 @@ int Tracks::SelectTracks(const edm::Event& iEvent,
     if (cutProgress == 0) {
       cutProgress = 1;
     }
-    if (fabs(iTrack->eta()) > 2.4)
+    if ((fabs(iTrack->eta()) > 2.4) || (fabs(iTrack->eta()) < 0.05)) //idk why eta<0.05 causes segfault so i removed it haha
       continue;
     if (cutProgress == 1) {
       cutProgress = 2;

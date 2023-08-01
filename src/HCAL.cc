@@ -504,6 +504,7 @@ bool HCAL::FindMuonHits(
     GlobalPoint TrackGlobalPoint,
     double charge,
     reco::TransientTrack track) {
+//  std::cout << "FindMuonHits start\n"; //qtag
   edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hcalRecHits;
   iEvent.getByToken(HBHERecHit_Label, hcalRecHits);
   double ReducedConeE = 0;
@@ -556,7 +557,6 @@ bool HCAL::FindMuonHits(
   highetathresh = 0.0;
   phithresh = 0.0;*/
   //GetCornerIDs(theHBHETopology,CornerAlignedCells,ClosestCell,Ndepths);
-
   Tdphi = TrackGlobalPoint.phi() - caloGeom->getGeometry(ClosestCell)->phiPos();
   Tdeta = TrackGlobalPoint.eta() - caloGeom->getGeometry(ClosestCell)->etaPos();
   if (Tdphi > ROOT::Math::Pi())
@@ -581,10 +581,13 @@ bool HCAL::FindMuonHits(
   //  if(!etaedge){Tdeta=10;}
   //  if(!phiedge){Tdphi=10;}
   GetAdjacentCells(theHBHETopology, AdjacentCells, ClosestCell, Ndepths, TrackiEta, Tdeta, Tdphi, CellsPerDepth);
+//  //SAFE-----------------------------------------------------------------------------------qtag
+  //return false;
   //  GetCenterCells(theHBHETopology,CenterCells,ClosestCell,Ndepths,1);
   CellsFound = GetTransientProjectedCells(HEGeom, CenterCells, track);
   int lastDepth = -1;
   int depthOffset = 0;
+//  //UNSAFE---------------------------------------------------------------------------------qtag
   for (int cell = 0; cell < CellsFound; cell++) {
     if (cell >= (CellsPerDepth * Ndepths)) {
       break;
@@ -634,7 +637,7 @@ bool HCAL::FindMuonHits(
   NeighborCellsFound = GetTransientProjectedCellsNeighbors(theHBHETopology, HEGeom, NeighborCells, track, etaPlus);
 
   //---------------------------------------------------------------------------------------
-
+//  std::cout << "Pre-hoht\n"; //qtag
   auto const& hoht = iEvent.getHandle(horecoToken_);
   for (HORecHitCollection::const_iterator hohtrechit = (*hoht).begin(); hohtrechit != (*hoht).end(); hohtrechit++) {
     std::shared_ptr<const CaloCellGeometry> hoht_cell = caloGeom->getGeometry(hohtrechit->id());
@@ -642,20 +645,18 @@ bool HCAL::FindMuonHits(
     const GlobalPoint hitPos = hoht_cell->getPosition();
     TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
     double trackDr = deltaR(hoht_position.eta(), hoht_position.phi(), traj.position().eta(), traj.position().phi());
-    //std::cout << "HO HCAL.cc\n";
-    //std::cout << "trackDr: "+std::to_string(trackDr)+"\n";
+//    std::cout << "HO HCAL.cc\n";//qtag
+//    std::cout << "trackDr: "+std::to_string(trackDr)+"\n";//qtag
     if ((trackDr < HOMuonHitDr || HOMuonHitDr < 0)) { // && (trackDr < 0.2)
       HOMuonHitEnergy = hohtrechit->energy();
       HOMuonHitDr = trackDr;
     }
-    //std::cout << "HOMuonHitDr: "+std::to_string(HOMuonHitDr)+"\n";
-    //std::cout << "HO HCAL.cc+\n";
+//    std::cout << "HOMuonHitDr: "+std::to_string(HOMuonHitDr)+"\n";//qtag
+//    std::cout << "HO HCAL.cc+\n";//qtag
   }
 
 
   //---------------------------------------------------------------------------------------
-
-
 
   if (!hcalRecHits.isValid()) {
     printf("Could not find HCAL RecHits.\n");
@@ -672,17 +673,17 @@ bool HCAL::FindMuonHits(
     for (HBHERecHitCollection::const_iterator hbherechit = hbhe->begin(); hbherechit != hbhe->end(); hbherechit++) {
       HcalDetId id(hbherechit->detid());
       std::shared_ptr<const CaloCellGeometry> hbhe_cell = caloGeom->getGeometry(hbherechit->id());
-      //std::cout << "trackDR-\n";
+//      std::cout << "trackDR-\n";//qtag
       Global3DPoint hbhe_position = hbhe_cell->getPosition();
-      //std::cout <<"Global3D\n";
+//      std::cout <<"Global3D\n";//qtag
       const GlobalPoint hitPos = hbhe_cell->getPosition();
-      //std::cout <<"GlobalPoint\n";
+//      std::cout <<"GlobalPoint\n";//qtag
       TrajectoryStateClosestToPoint traj = track.trajectoryStateClosestToPoint(hitPos);
-      //std::cout <<"TrajectoryStateClosestToPoint\n";
+//      std::cout <<"TrajectoryStateClosestToPoint\n";//qtag
       double trackDr = deltaR(hbhe_position.eta(), hbhe_position.phi(), traj.position().eta(), traj.position().phi());
-      //std::cout << std::to_string(hbhe_position.eta())+std::to_string(traj.position().eta());
-      //std::cout <<"trackDr = "+std::to_string(trackDr)+"\n";
-      //std::cout << "trackDR+\n";
+//      std::cout << std::to_string(hbhe_position.eta())+std::to_string(traj.position().eta());//qtag
+//      std::cout <<"trackDr = "+std::to_string(trackDr)+"\n";//qtag
+//      std::cout << "trackDR+\n";//qtag
       HcalDetId* trackmatch = std::find(std::begin(AdjacentCells), std::end(AdjacentCells), id);
       HcalDetId* centermatch = std::find(std::begin(CenterCells), std::end(CenterCells), id);
       HcalDetId* neighbormatch = std::find(std::begin(NeighborCells), std::end(NeighborCells), id);
@@ -697,9 +698,9 @@ bool HCAL::FindMuonHits(
           }
           if (id.depth() < 8) { // && trackDr <
             layerenergies[id.depth() - 1] += hbherechit->energy();
-            //std::cout << "layerdr-\n";
+//            std::cout << "layerdr-\n";//qtag
             layerdrs[id.depth() - 1] +=  trackDr;
-            //std::cout << "layerdr+\n";
+//            std::cout << "layerdr+\n";//qtag
           }
         }
         if (neighbormatch != std::end(NeighborCells)) {
@@ -870,13 +871,15 @@ int HCAL::GetTransientProjectedCellsNeighborsPhi(const HcalTopology* theHBHETopo
 int HCAL::GetTransientProjectedCells(const CaloSubdetectorGeometry* HEGeom,
                                      HcalDetId* TrackAlignedCells,
                                      reco::TransientTrack muTrack) {
+//  std::cout << "transient start\n";//qtag
   double start, step, end;
-  start = 320;
+  start = 175;
   step = 5;
   end = 530;
   int j = 0;
   HcalDetId lastClosestCell;
   for (int i = start; i < end; i += step) {
+//    std::cout << "loop iter: "+std::to_string(i)+" ";//qtag
     double testPointPerp = fabs(i * tan(muTrack.track().theta()));
     double testPointX = testPointPerp * cos(muTrack.track().phi());
     double testPointY = testPointPerp * sin(muTrack.track().phi());
@@ -886,11 +889,10 @@ int HCAL::GetTransientProjectedCells(const CaloSubdetectorGeometry* HEGeom,
     } else {
       testPointZ = -i;
     }
-
     GlobalPoint testGlobalPoint = GlobalPoint(testPointX, testPointY, testPointZ);
     TrajectoryStateClosestToPoint traj = muTrack.trajectoryStateClosestToPoint(testGlobalPoint);
     HcalDetId testClosestCell = (HcalDetId)HEGeom->getClosestCell(traj.position());
-
+//    std::cout << "(check)\n";//qtag
     if (testClosestCell != lastClosestCell) {
       lastClosestCell = testClosestCell;
       //Check that the track is geometrically within the eta/phi of the cell
@@ -901,10 +903,19 @@ int HCAL::GetTransientProjectedCells(const CaloSubdetectorGeometry* HEGeom,
       double cellDphi = traj.position().phi() - cellGlobalPoint.phi();
       double etaEdge = etaSize / 2. - fabs(cellDeta);
       double phiEdge = phiSize / 2. - fabs(cellDphi);
-      if (etaEdge < 0 || phiEdge < 0)
+//      std::cout << "condition\n";//qtag
+//      //return j;//qtag
+      if (etaEdge < 0 || phiEdge < 0) {
+//        std::cout << "out of cell\n";//qtag
+        return j;
         continue;
-
+      }
+//      std::cout << "j: "+std::to_string(j)+"\n";//qtag
+//      std::cout << "testClosestCell: "+std::to_string(testClosestCell)+"\n";//qtag
+//      std::cout << "TrackAlignedCells[j]: "+std::to_string(TrackAlignedCells[j])+"\n";//qtag
       TrackAlignedCells[j] = testClosestCell;
+//      std::cout << "End\n";//qtag
+//      //return j;//qtag
       j = j + 1;
     }
   }

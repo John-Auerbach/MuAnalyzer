@@ -150,7 +150,7 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
 }
 
 void Histograms::FillHists(EventInfo info) {
-  //std::cout << "hE Fill Hist.cc\n";
+//  std::cout << "start FillHists\n";//qtag
   for (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
       m_hitEnergies[depth]->Fill(info.hitEnergies[depth]);
@@ -166,6 +166,7 @@ void Histograms::FillHists(EventInfo info) {
   int missingCount = 0;
   int expectedCount = 0;
   int foundCount = 0;
+  //std::cout <<  "Counts -"; //qtag
   for  (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
       expectedCount++;
@@ -176,6 +177,7 @@ void Histograms::FillHists(EventInfo info) {
       }
     }
   }
+  //std::cout <<  "Counts +"; //qtag
   m_missingCount->Fill(missingCount);
   m_expectedCount->Fill(expectedCount);
   m_foundCount->Fill(foundCount);
@@ -284,7 +286,8 @@ void Histograms::FillHists(EventInfo info) {
   m_standaloneNHits->Fill(info.staNHits, info.eventWeight);
   m_staTransDCA->Fill(info.staTransDCA, info.eventWeight);
   m_staLongDCA->Fill(info.staLongDCA, info.eventWeight);
-
+  
+//  std::cout << "end FillHists\n"; //qtag
 }
 
 void Histograms::IncCutFlow(double weight) {

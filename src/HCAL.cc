@@ -415,7 +415,7 @@ bool HCAL::HitsPlots(
     double neighborenergies[7];
     double neighborphienergies[7];
     for (int i = 0; i < 7; i++) {
-      layerenergies[i] = 0;
+      layerenergies[i] = -1;
       neighborenergies[i] = 0;
       neighborphienergies[i] = 0;
     }
@@ -441,7 +441,11 @@ bool HCAL::HitsPlots(
           Hits[1] += hbherechit->energy();
           Hits[0]++;
           if (id.depth() < 8) {
-            layerenergies[id.depth() - 1] += hbherechit->energy();
+            if (layerenergies[id.depth()-1] == -1) {
+              layerenergies[id.depth() - 1] = hbherechit->energy();
+            } else {
+              layerenergies[id.depth() - 1] += hbherechit->energy();
+            }
           }
           if ((ROOT::Math::VectorUtil::DeltaR(idPositionRoot, trajRoot) < 0.2) &&
               ((idPositionRoot.eta() * t0.momentum().eta()) > 0)) {

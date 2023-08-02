@@ -95,7 +95,7 @@ void Histograms::book(TFileDirectory histFolder, bool MC) {
     m_DtHitZPhiByDepth[i] = histFolder.make<TH2F>((std::string("DTHitZPhi_S")+std::to_string(i)).c_str(), ";#z;#phi;Events", 100, -1500, 1500, 100, -3.15, 3.15);
     m_minDtDrByDepth[i] = histFolder.make<TH1F>((std::string("minDtDr_S")+std::to_string(i)).c_str(), ";#Delta R; Events", 200, 0, 0.1);
     m_minDtDPhiByDepth[i] = histFolder.make<TH1F>((std::string("minDtDPhi_S")+std::to_string(i)).c_str(), ";#Delta Phi; Events", 200, -0.1, 0.1);
-    m_minDtDZByDepth[i] = histFolder.make<TH1F>((std::string("minDtDZ_S")+std::to_string(i)).c_str(), ";#Delta Z; Events", 200, -0.1, 0.1);
+    m_minDtDZByDepth[i] = histFolder.make<TH1F>((std::string("minDtDZ_S")+std::to_string(i)).c_str(), ";#Delta Z; Events", 200, -10, 10);
   }
   m_ProbeEcalIsolation = histFolder.make<TH1F>("ProbeEcalIsolation", ";Ecal Isolation; Events", 100, 0, 100);
   m_minGenMuDr = histFolder.make<TH1F>("minGenMuDr", "; #Delta R; Events", 200, 0, 4);

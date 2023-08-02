@@ -609,8 +609,11 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   pairedEvents.FillHists(info);  
   //std::cout << "2\n"; //------------------------------------------------------------------------
 
-  if(std::abs(info.probeTrackEta)<1.6){pairedEvents_HB.FillHists(info);}
-  else{pairedEvents_HE.FillHists(info);}
+  if(std::abs(info.probeTrackEta)<1.5) {
+    pairedEvents_HB.FillHists(info);
+  } else if (std::abs(info.probeTrackEta)>1.653) {
+    pairedEvents_HE.FillHists(info);
+  }
  // std::cout << "3\n"; //------------------------------------------------------------------------
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
@@ -631,9 +634,11 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (info.expectedHits - nFoundHits > 2) {
     severalMissing.FillHists(info);
     //std::cout << "4\n"; //------------------------------------------------------------------------
-
-    if(std::abs(info.probeTrackEta)<1.6){severalMissing_HB.FillHists(info);}
-    else{severalMissing_HE.FillHists(info);}
+  if(std::abs(info.probeTrackEta)<1.5) {
+    severalMissing_HB.FillHists(info);
+  } else if (std::abs(info.probeTrackEta)>1.653) {
+    severalMissing_HE.FillHists(info);
+  }
     //std::cout << "5\n"; //------------------------------------------------------------------------
   }
   if (info.expectedHits == 0) {

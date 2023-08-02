@@ -39,8 +39,8 @@ HCAL::HCAL() {
     cellDphiByDepth[depth] = 10.;
     cellEtaEdgeDistance[depth] = 10.;
     cellPhiEdgeDistance[depth] = 10.;
-    m_hitEnergies[depth] = 0;
-    m_hitDrs[depth] = 0;
+    m_hitEnergies[depth] = -1;
+    m_hitDrs[depth] = -1;
     foundDepths[depth] = false;
   }
 }

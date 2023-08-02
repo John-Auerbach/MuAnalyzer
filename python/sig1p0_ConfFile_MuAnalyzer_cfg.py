@@ -87,7 +87,7 @@ process.demo = cms.EDAnalyzer('MuAnalyzer',
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("1p0_DiMuon_Histos.root"),
+                                   fileName = cms.string("sig1p0_DiMuon_Histos.root"),
 				   closeFileFast = cms.untracked.bool(False)
 )
 

@@ -32,8 +32,8 @@ HCAL::HCAL() {
   onEdge = false;
   etaEdgeMin = -1;
   phiEdgeMin = -1;
-  HOMuonHitDr = -1;
-  HOMuonHitEnergy = -1;
+  HOhitDr = -1;
+  HOhitEnergy = -1;
   for (int depth = 0; depth < 7; depth++) {
     cellDetaByDepth[depth] = 10.;
     cellDphiByDepth[depth] = 10.;
@@ -145,9 +145,8 @@ double HCAL::MuonMindR(
       if (minHCALdR > sqrt((pow((MuonEta - hbhe_position.eta()), 2.0) + pow(dPhi, 2.0)))) {
         if (hbherechit->energy() != 0) {
           minHCALdR = sqrt((pow((MuonEta - hbhe_position.eta()), 2.0) + pow(dPhi, 2.0)));
-          MuonMinDr = minHCALdR;
-          MuonHitEnergy = hbherechit->energy();
-          MuonHitDepth = id.depth();
+          HCALhitEnergy = hbherechit->energy();
+          HCALhitDepth = id.depth();
           minHCALDetId = id;
         }
       }
@@ -651,11 +650,11 @@ bool HCAL::FindMuonHits(
     double trackDr = deltaR(hoht_position.eta(), hoht_position.phi(), traj.position().eta(), traj.position().phi());
 //    std::cout << "HO HCAL.cc\n";//qtag
 //    std::cout << "trackDr: "+std::to_string(trackDr)+"\n";//qtag
-    if ((trackDr < HOMuonHitDr || HOMuonHitDr < 0)) { // && (trackDr < 0.2)
-      HOMuonHitEnergy = hohtrechit->energy();
-      HOMuonHitDr = trackDr;
+    if ((trackDr < HOhitDr || HOhitDr < 0)) { // && (trackDr < 0.2)
+      HOhitEnergy = hohtrechit->energy();
+      HOhitDr = trackDr;
     }
-//    std::cout << "HOMuonHitDr: "+std::to_string(HOMuonHitDr)+"\n";//qtag
+//    std::cout << "HOhitDr: "+std::to_string(HOhitDr)+"\n";//qtag
 //    std::cout << "HO HCAL.cc+\n";//qtag
   }
 
@@ -668,8 +667,8 @@ bool HCAL::FindMuonHits(
     const HBHERecHitCollection* hbhe = hcalRecHits.product();
     double layerenergies[7], layerdrs[7], lowthreshadjacent[7], neighborenergies[7];
     for (int i = 0; i < 7; i++) {
-      layerenergies[i] = 0;
-      layerdrs[i] = 0;
+      layerenergies[i] = -1;
+      layerdrs[i] = -1;
       lowthreshadjacent[i] = 0;
       neighborenergies[i] = 0;
     }
@@ -877,9 +876,9 @@ int HCAL::GetTransientProjectedCells(const CaloSubdetectorGeometry* HEGeom,
                                      reco::TransientTrack muTrack) {
 //  std::cout << "transient start\n";//qtag
   double start, step, end;
-  start = 175;
+  start = 180;
   step = 5;
-  end = 530;
+  end = 637;
   int j = 0;
   HcalDetId lastClosestCell;
   for (int i = start; i < end; i += step) {

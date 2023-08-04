@@ -35,8 +35,8 @@ public:
   TH1F* m_foundDepths;
   TH1F* m_hitEnergies[7];
   TH1F* m_hitDrs[7];
-  TH1F* m_HOMuonHitEnergy;
-  TH1F* m_HOMuonHitDr;
+  TH1F* m_HOhitEnergy;
+  TH1F* m_HOhitDr;
   TH1F* m_missingCount;
   TH1F* m_expectedCount;
   TH1F* m_foundCount;

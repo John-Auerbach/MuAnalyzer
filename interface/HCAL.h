@@ -66,11 +66,10 @@ public:
                       edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken,
                       const reco::TransientTrack,
 		      double coneSize=0.2);
-  double HOMuonHitEnergy;
-  double HOMuonHitDr;
-  double MuonHitEnergy;
-  int MuonHitDepth;
-  double MuonMinDr;
+  double HOhitEnergy;
+  double HOhitDr;
+  double HCALhitEnergy;
+  int HCALhitDepth;
   HcalDetId minHCALDetId;
   double m_coneEnergy;
   int m_coneHits;

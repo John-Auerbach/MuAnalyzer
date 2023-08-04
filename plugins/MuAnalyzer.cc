@@ -179,6 +179,8 @@ private:
   Histograms pairedEvents;
   Histograms pairedEvents_HE;
   Histograms pairedEvents_HB;
+  Histograms HitDepth[7];
+  Histograms noHitDepth[7];
   Histograms missingHits[7];
   Histograms severalMissing;
   Histograms severalMissing_HE;
@@ -267,6 +269,8 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
   pairedEvents_HB.book(fs->mkdir("pairedEvents_HB"),m_isMC);
   pairedEvents_HE.book(fs->mkdir("pairedEvents_HE"),m_isMC);
   for (int k = 0; k < 7; k++) {
+    HitDepth[k].book(fs->mkdir(("HitDepth"+std::to_string(k+1)).c_str()),m_isMC);
+    noHitDepth[k].book(fs->mkdir(("noHitDepth"+std::to_string(k+1)).c_str()),m_isMC);
     //std::cout << "mH book Mu\n";
     missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
     //std::cout << "mH book Mu+\n";
@@ -536,9 +540,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   reco::TransientTrack track = transientTrackBuilder->build(selectedTrack);
   double charge = selectedTrack->charge(); 
 //  std::cout << "FindMuonHits\n";//qtag
-  std::cout << "eta: "+std::to_string(selectedTrack->eta())+" ";
-  std::cout << "phi: "+std::to_string(selectedTrack->phi())+" ";
-  std::cout << "pt: "+std::to_string(selectedTrack->pt())+"\n";
+  std::cout << "eta: "+std::to_string(selectedTrack->eta())+" ";//infotag
+  std::cout << "phi: "+std::to_string(selectedTrack->phi())+" ";//infotag
+  std::cout << "pt: "+std::to_string(selectedTrack->pt())+"\n";//infotag
   if (!myHCAL.FindMuonHits(iEvent,
                            iSetup,
                            HBHERecHit_Label,
@@ -551,8 +555,8 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     return;
   }
 //  std::cout<<"setinfo\n";//qtag
-  info.HOMuonHitEnergy = myHCAL.HOMuonHitEnergy;
-  info.HOMuonHitDr = myHCAL.HOMuonHitDr;
+  info.HOhitEnergy = myHCAL.HOhitEnergy;
+  info.HOhitDr = myHCAL.HOhitDr;
   info.nCellsFound = myHCAL.CellsFound;
   info.nNeighborCellsFound = myHCAL.NeighborCellsFound;
   for (int depth = 0; depth < 7; depth++) {
@@ -617,7 +621,10 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
  // std::cout << "3\n"; //------------------------------------------------------------------------
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
-    if (!info.foundDepths[depth]) {
+    if (info.foundDepths[depth]) {
+      HitDepth[depth].FillHists(info);
+    } else {
+      noHitDepth[depth].FillHists(info);
       continue;
     }
     info.expectedHits++;
@@ -626,9 +633,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   //std::cout << "mH Fill MuA\n";
-  std::cout << "missingHits: ";
-  std::cout << info.expectedHits - nFoundHits;
-  std::cout << "\n";
+  //std::cout << "missingHits: ";//infotag
+  //std::cout << info.expectedHits - nFoundHits;//infotag
+  //std::cout << "\n";//infotag
   missingHits[info.expectedHits - nFoundHits].FillHists(info);
   //std::cout << "mH Fill MuA+\n";
   if (info.expectedHits - nFoundHits > 2) {

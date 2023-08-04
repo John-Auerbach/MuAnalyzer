@@ -29,10 +29,10 @@ Histograms::Histograms() {
 void Histograms::book(TFileDirectory histFolder, bool MC) {
   isMC=MC;
   //std::cout << "hE Hist.cc\n";
+  m_foundDepths = histFolder.make<TH1F>("foundDepths", "; ;Events",7,0.5,7.5);
   for (int i = 0; i < 7; i++) {
-    m_foundDepths = histFolder.make<TH1F>("foundDepths", "; ;Events",8,-0.5,7.5);
-    m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,10);
-    m_hitDrs[i] = histFolder.make<TH1F>(("MuonHitDr_Depth"+std::to_string(i)).c_str(), "; ;Events",100,0,0.5);
+    m_hitEnergies[i] = histFolder.make<TH1F>(("MuonHitEnergy_Depth"+std::to_string(i+1)).c_str(), "; ;Events",100,0,10);
+    m_hitDrs[i] = histFolder.make<TH1F>(("MuonHitDr_Depth"+std::to_string(i+1)).c_str(), "; ;Events",100,0,0.5);
   }
   //std::cout << "hE Hist.cc+\n";
   m_HOMuonHitEnergy = histFolder.make<TH1F>("HOMuonHitEnergy", "; ;Events",200,0,2);
@@ -154,7 +154,7 @@ void Histograms::FillHists(EventInfo info) {
 //  std::cout << "start FillHists\n";//qtag
   for (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
-      m_foundDepths->Fill(depth);
+      m_foundDepths->Fill(depth+1);
       m_hitEnergies[depth]->Fill(info.hitEnergies[depth]);
       //std::cout << "FillHist-\n";
       m_hitDrs[depth]->Fill(info.hitDrs[depth]);

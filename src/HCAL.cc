@@ -792,9 +792,9 @@ int HCAL::GetTransientProjectedCellsNeighbors(const HcalTopology* theHBHETopolog
                                               reco::TransientTrack muTrack,
                                               bool etaPlus) {
   double start, step, end;
-  start = 320;
+  start = 180;
   step = 5;
-  end = 530;
+  end = 637;
   int j = 0;
   HcalDetId lastClosestCell;
   for (int i = start; i < end; i += step) {
@@ -896,11 +896,12 @@ int HCAL::GetTransientProjectedCells(const CaloSubdetectorGeometry* HEGeom,
     GlobalPoint testGlobalPoint = GlobalPoint(testPointX, testPointY, testPointZ);
     TrajectoryStateClosestToPoint traj = muTrack.trajectoryStateClosestToPoint(testGlobalPoint);
     HcalDetId testClosestCell = (HcalDetId)HEGeom->getClosestCell(traj.position());
+    GlobalPoint cellGlobalPoint = HEGeom->getGeometry(testClosestCell)->getPosition();
+    double dR = fabs(sqrt(pow(traj.position().x() - cellGlobalPoint.x(), 2.0) + pow(traj.position().y() - cellGlobalPoint.y(), 2.0) + pow(traj.position().z() - cellGlobalPoint.z(), 2.0)));
 //    std::cout << "(check)\n";//qtag
-    if (testClosestCell != lastClosestCell) {
+    if (testClosestCell != lastClosestCell && dR <= 10){
       lastClosestCell = testClosestCell;
       //Check that the track is geometrically within the eta/phi of the cell
-      GlobalPoint cellGlobalPoint = HEGeom->getGeometry(testClosestCell)->getPosition();
       double etaSize = HEGeom->getGeometry(testClosestCell)->etaSpan();
       double phiSize = HEGeom->getGeometry(testClosestCell)->phiSpan();
       double cellDeta = traj.position().eta() - cellGlobalPoint.eta();

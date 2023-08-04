@@ -791,7 +791,7 @@ int HCAL::GetTransientProjectedCellsNeighbors(const HcalTopology* theHBHETopolog
                                               reco::TransientTrack muTrack,
                                               bool etaPlus) {
   double start, step, end;
-  start = 180;
+  start = 130;
   step = 5;
   end = 637;
   int j = 0;

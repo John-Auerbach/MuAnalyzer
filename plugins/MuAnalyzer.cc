@@ -179,8 +179,8 @@ private:
   Histograms pairedEvents;
   Histograms pairedEvents_HE;
   Histograms pairedEvents_HB;
-  Histograms HitDepth[7];
-  Histograms noHitDepth[7];
+  Histograms HBHitDepth[7];
+  Histograms HBnoHitDepth[7];
   Histograms missingHits[7];
   Histograms severalMissing;
   Histograms severalMissing_HE;
@@ -269,8 +269,8 @@ MuAnalyzer::MuAnalyzer(const edm::ParameterSet& iConfig)
   pairedEvents_HB.book(fs->mkdir("pairedEvents_HB"),m_isMC);
   pairedEvents_HE.book(fs->mkdir("pairedEvents_HE"),m_isMC);
   for (int k = 0; k < 7; k++) {
-    HitDepth[k].book(fs->mkdir(("HitDepth"+std::to_string(k+1)).c_str()),m_isMC);
-    noHitDepth[k].book(fs->mkdir(("noHitDepth"+std::to_string(k+1)).c_str()),m_isMC);
+    HBHitDepth[k].book(fs->mkdir(("HBHitDepth"+std::to_string(k+1)).c_str()),m_isMC);
+    HBnoHitDepth[k].book(fs->mkdir(("HBnoHitDepth"+std::to_string(k+1)).c_str()),m_isMC);
     //std::cout << "mH book Mu\n";
     missingHits[k].book(fs->mkdir((std::to_string(k)+"_missingHits").c_str()),m_isMC);
     //std::cout << "mH book Mu+\n";
@@ -622,9 +622,9 @@ void MuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   int nFoundHits = 0;
   for (int depth = 0; depth < 7; depth++) {
     if (info.foundDepths[depth]) {
-      HitDepth[depth].FillHists(info);
+      if(std::abs(info.probeTrackEta)<1.5){HBHitDepth[depth].FillHists(info);}
     } else {
-      noHitDepth[depth].FillHists(info);
+      if(std::abs(info.probeTrackEta)<1.5){HBnoHitDepth[depth].FillHists(info);}
       continue;
     }
     info.expectedHits++;

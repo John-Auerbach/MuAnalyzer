@@ -665,10 +665,11 @@ bool HCAL::FindMuonHits(
     printf("Could not find HCAL RecHits.\n");
   } else {
     const HBHERecHitCollection* hbhe = hcalRecHits.product();
-    double layerenergies[7], layerdrs[7], lowthreshadjacent[7], neighborenergies[7];
+    double layerenergies[7], layerdrs[7], minlayerdrs[7], lowthreshadjacent[7], neighborenergies[7];
     for (int i = 0; i < 7; i++) {
       layerenergies[i] = -1;
       layerdrs[i] = -1;
+      minlayerdrs[i] = 1000;
       lowthreshadjacent[i] = 0;
       neighborenergies[i] = 0;
     }
@@ -700,9 +701,16 @@ bool HCAL::FindMuonHits(
             ReducedConeE += hbherechit->energy();
           }
           if (id.depth() < 8) { // && trackDr <
-            layerenergies[id.depth() - 1] += hbherechit->energy();
+            if (layerenergies[id.depth()-1] == -1) {
+              layerenergies[id.depth()-1] = hbherechit->energy();
+            } else {
+              layerenergies[id.depth()-1] += hbherechit->energy();
+            }
+            if (layerdrs[id.depth()-1] <= minlayerdrs[id.depth()-1]) {
+              layerdrs[id.depth()-1] = trackDr;
+              minlayerdrs[id.depth()-1] = layerdrs[id.depth()-1];
+            }
 //            std::cout << "layerdr-\n";//qtag
-            layerdrs[id.depth() - 1] +=  trackDr;
 //            std::cout << "layerdr+\n";//qtag
           }
         }
